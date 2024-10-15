@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Mining Compound</title>
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="../../../assets/vendors/feather/feather.css">
+  <link rel="stylesheet" href="../../../assets/vendors/mdi/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="../../../assets/vendors/ti-icons/css/themify-icons.css">
+  <link rel="stylesheet" href="../../../assets/vendors/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../assets/vendors/typicons/typicons.css">
+  <link rel="stylesheet" href="../../../assets/vendors/simple-line-icons/css/simple-line-icons.css">
+  <link rel="stylesheet" href="../../../assets/vendors/css/vendor.bundle.base.css">
+  <link rel="stylesheet" href="../../../assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+  <!-- endinject -->
+  <!-- plugin css for this page -->
+  <link rel="stylesheet" href="../../../assets/vendors/jquery-bar-rating/css-stars.css">
+  <link rel="stylesheet" href="../../../assets/vendors/jquery-toast-plugin/jquery.toast.min.css">
+  <!-- End plugin css for this page -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="../../../assets/css/horizontal-layout-light/style.css">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+</head>
+
+<body>
+  <div class="container-scroller">
+    <!-- partial:../../partials/_horizontal-navbar.html -->
+    <div class="horizontal-menu">
+  <nav class="navbar top-navbar col-lg-12 col-12 p-0">
+    <div class="container">
+      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start me-lg-3">
+        <div>
+          <a class="navbar-brand brand-logo" href="/dashboard">
+            <img src="../../../assets/images/logo-light.svg" alt="logo" />
+          </a>
+          <a class="navbar-brand brand-logo-mini" href="/dashboard">
+            <img src="../../../assets/images/logo-mini-reverse.svg" alt="logo" />
+          </a>
+        </div>
+      </div>
+      <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+        <ul class="navbar-nav navbar-nav-right">
+          <li class="nav-item dropdown d-lg-flex user-dropdown">
+            <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+              <img class="img-xs rounded-circle" src="../../../assets/images/faces/face8.jpg" alt="Profile image"> </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+              <div class="dropdown-header text-center">
+                <img class="img-md rounded-circle" src="../../../assets/images/faces/face8.jpg" alt="Profile image">
+                <p class="mb-1 mt-3 fw-semibold">Allen Moreno</p>
+                <p class="fw-light text-muted mb-0">allenmoreno@gmail.com</p>
+              </div>
+              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My
+                Profile <span class="badge badge-pill badge-danger">1</span></a>
+              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i>
+                Messages</a>
+              <a class="dropdown-item"><i
+                  class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i> Activity</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i>
+                FAQ</a>
+              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
+            </div>
+          </li>
+        </ul>
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+          data-toggle="horizontal-menu-toggle">
+          <span class="ti-menu"></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <nav class="bottom-navbar">
+    <div class="container">
+        <ul class="nav page-navigation">
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard">
+              <i class="icon-grid menu-icon"></i>
+              <span class="menu-title">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/profile">
+              <span class="menu-title">Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <span class="menu-title">Billing and Transaction</span>
+              <i class="menu-arrow"></i></a>
+            <div class="submenu">
+              <ul class="submenu-item">
+                <li class="nav-item"><a class="nav-link" href="/paymentGateway">Payment Gateway</a></li>
+                <li class="nav-item"><a class="nav-link" href="">Withdrawal</a></li>
+                <li class="nav-item"><a class="nav-link" href="/transaction">History and Transaction</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/log-out">
+              <span class="menu-title"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</span>
+            </a>
+          </li>
+        </ul>
+    </div>
+  </nav>
+</div>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+      <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="container">
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-lg-4">
+                        <div class="border-bottom text-center pb-4">
+                          <div class="mb-3">
+                            <h3><%=username%></h3>
+                          </div>
+                          <p class="w-75 mx-auto mb-3"><%=email%> </p>
+                        </div>
+                        <div class="py-4">
+                          <p class="clearfix">
+                            <span class="float-start">
+                              Mail
+                            </span>
+                            <span class="float-end text-muted">
+                              <%=email%>
+                            </span>
+                          </p>
+                          <p class="clearfix">
+                            <span class="float-start">
+                              Status
+                            </span>
+                            <span class="float-end text-muted">
+                              <%=status%>
+                            </span>
+                          </p>
+                          <p class="clearfix">
+                            <span class="float-start">
+                              User ID
+                            </span>
+                            <span class="float-end text-muted">
+                              <%=userID%>
+                            </span>
+                          </p>
+                          <p class="clearfix">
+                            <span class="float-start">
+                              Sponsord By
+                            </span>
+                            <span class="float-end text-muted">
+                              <%=sponsorID  %>
+                            </span>
+                          </p>
+                          <% if (typeof sponsorName !== 'undefined') { %>
+                            <p class="clearfix">
+                              <span class="float-start">
+                                Sponsor Name
+                              </span>
+                              <span class="float-end text-muted">
+                                <%= sponsorName %>
+                              </span>
+                            </p>
+                          <% } %>
+                          
+                        </div>
+                      </div>
+                            
+                    <div class="col-12">
+                        <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                            <div class="col-md-10 mx-auto">
+                                <ul class="nav nav-pills nav-pills-custom" id="pills-tab-custom" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link" id="pills-home-tab-custom" data-bs-toggle="pill"
+                                    href="#bank_details" onclick="bank()" role="tab" aria-controls="pills-home" aria-selected="true">
+                                    Billing
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="pills-profile-tab-custom" data-bs-toggle="pill" href="#downlines"
+                                    role="tab" aria-controls="pills-profile" aria-selected="false">
+                                    Team
+                                    </a>
+                                </li>
+                                </ul>
+                                <div class="tab-content tab-content-custom-pill" id="pills-tabContent-custom">
+                                <div class="tab-pane fade" id="bank_details" role="tabpanel" aria-labelledby="pills-home-tab-custom">
+                                    <div id="billing_details">
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="downlines" role="tabpanel"
+                                    aria-labelledby="pills-profile-tab-custom">
+                                    <div class="media">
+                                    <img class="me-3 w-25 rounded" src="../../../assets/images/samples/300x300/10.jpg"
+                                        alt="sample image">
+                                    <div class="media-body">
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- content-wrapper ends -->
+        <!-- partial:../../partials/_footer.html -->
+        <footer class="footer">
+  <div class="d-sm-flex justify-content-center justify-content-sm-between">
+    <span class="float-none float-sm-end d-block mt-1 mt-sm-0 text-center">Copyright © 2024. All rights reserved.</span>
+  </div>
+</footer>
+        <!-- partial -->
+      </div>
+      <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+  <!-- plugins:js -->
+  <script src="../../../assets/vendors/js/vendor.bundle.base.js"></script>
+  <script src="../../../assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page-->
+  <script src="../../../assets/vendors/jquery-bar-rating/jquery.barrating.min.js"></script>
+  <script src="../../../assets/vendors/jquery-toast-plugin/jquery.toast.min.js"></script>
+  <!-- End plugin js for this page-->
+  <!-- inject:js -->
+  <script src="../../../assets/js/off-canvas.js"></script>
+  <script src="../../../assets/js/hoverable-collapse.js"></script>
+  <script src="../../../assets/js/template.js"></script>
+  <script src="../../../assets/js/settings.js"></script>
+  <script src="../../../assets/js/todolist.js"></script>
+  <script src="../../../assets/js/toastDemo.js"></script>
+  <script src="../../../assets/js/desktop-notification.js"></script>
+  <script src="../../../assets/js/core/request.js"></script>
+  <script src="../../../assets/js/core/response.js"></script>
+  <!-- endinject -->
+  <!-- Custom js for this page-->
+  <script src="../../../assets/js/profile-demo.js"></script>
+  <!-- End custom js for this page-->
+</body>
+
+</html>

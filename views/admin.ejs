@@ -290,10 +290,77 @@
                             
               
                         <%  if(pendingWithdraw != 0){    %>
+                          <div class="row mt-4">
+                            <div class="col-lg-4">
+                              <div class="border-bottom text-center pb-4">
+                                <div class="mb-3 mt-3">
+                                  <h5>Pending Withdrawal - <%=pendingWithdraw%></h5>
+                                </div>
+                              </div>
+               
                               
                                     <%    withdrawal.forEach(function(invest){    %>
-                                          
+                                      <div class="py-4">
+                                        <p class="clearfix">
+                                          <span class="float-start">
+                                            Email
+                                          </span>
+                                          <span class="float-end text-muted">
+                                            <%=invest.email%>
+                                          </span>
+                                        </p>
+                                        <p class="clearfix">
+                                          <span class="float-start">
+                                            Username
+                                          </span>
+                                          <span class="float-end text-muted">
+                                            <%=invest.username%>
+                                          </span>
+                                        </p>
+                                        <p class="clearfix">
+                                          <span class="float-start">
+                                            Transaction ID
+                                          </span>
+                                          <span class="float-end text-muted">
+                                            <%=invest.trnxId%>
+                                          </span>
+                                        </p>
+                                        <p class="clearfix">
+                                          <span class="float-start">
+                                            Time
+                                          </span>
+                                          <span class="float-end text-muted">
+                                            <%=invest.time.hour%>:<%=invest.time.minutes%> / <%=invest.time.date%>-<%=invest.time.month%>-<%=invest.time.year%>
+                                          </span>
+                                        </p>
+                                        <form class="forms-sample" action="/api/creditwithdrawal" method="post">
+                                            <input type="text" hidden name="username" value="<%=invest.username%>">
+                                            <input type="text" hidden name="email" value="<%=invest.email%>">
+                                            <input type="text" hidden name="approval" value="true">
+                                            <input type="number" hidden name="amount" value="<%=invest.amount%>">
+                                            <input type="number" hidden name="trnxId" value="<%=invest.trnxId%>">
+                                          </div>
+                                          <div>
+                                          <button name="approve" class="btn text-end btn-rounded btn-success" type="submit">Approve</button>
+                                          </div>
+                                        </form>
+                                        <form class="forms-sample" action="/api/creditwithdrawal" method="post">
+                                          <div class="form-group row">
+                                            <input type="text" hidden name="username" value="<%=invest.username%>">
+                                            <input type="text" hidden name="email" value="<%=invest.email%>">
+                                            <input type="text" hidden name="approval" value="false">
+                                            <input type="number" hidden name="amount" value="<%=invest.amount%>">
+                                            <input type="number" hidden name="trnxId" value="<%=invest.trnxId%>">
+                                          </div>
+                                          <div>
+                                          <button name="reject" class="btn text-start btn-rounded btn-danger" type="submit">Reject</button>
+                                          </div>
+                                        </form>
+                                      </div>
+                                      <hr>
                                       <%  });    %>
+                                    </div>
+                                  </div>
                                   
                       <%  }    %>
               

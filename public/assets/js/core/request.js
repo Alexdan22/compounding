@@ -200,6 +200,46 @@ const paymentVerification = function(){
 }
 
 
+//Withdraw button handler
+const withdraw = function(){
+  amount = document.getElementById('amount').value
+  $.ajax({
+    url: '/api/withdrawal',
+    // dataType: "jsonp",
+    data: {
+      amount: amount
+    },
+    type: 'POST',
+    success: function (data) {
+      if( data.redirect == undefined){
+        const availableBalance = function(){
+          if(data.alert == 'true'){
+            'use strict';
+              resetToastPosition();
+              $.toast({
+                heading: data.alertType,
+                text: data.message,
+                showHideTransition: 'slide',
+                icon: data.alertType,
+                loaderBg: data.loaderBg,
+                position: 'top-center'
+              })
+          }
+          document.getElementById('availableBalance').innerHTML = data.availableBalance
+        }
+        $( document ).ready(function() {
+            availableBalance();
+        });
+      }else{
+        login2000();
+      }
+    },
+    error: function (status, error) {
+        console.log('Error: ' + error.message);
+    },
+  });
+}
+
 
 
 

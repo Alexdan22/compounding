@@ -88,7 +88,7 @@
                 <div class="submenu">
                     <ul class="submenu-item">
                         <li class="nav-item"><a class="nav-link" href="/paymentGateway">Payment Gateway</a></li>
-                        <li class="nav-item"><a class="nav-link" href="">Withdrawal</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/withdrawal">Withdrawal</a></li>
                         <li class="nav-item"><a class="nav-link" href="/transaction">History and Transaction</a></li>
                     </ul>
                 </div>
@@ -125,10 +125,10 @@
                             <thead>
                                 <tr class="bg-primary text-white">
                                   <th>Date</th>
-                                  <th>Type</th>
-                                  <th>From</th>
-                                  <th>Order #</th>
                                   <th>Amount</th>
+                                  <th>From</th>
+                                  <th>Type</th>
+                                  <th>Order #</th>
                                   <th>Status</th>
                                 </tr>
                               </thead>
@@ -139,10 +139,10 @@
                               <%       //Pending warning trnx  %>
                                     <tr>
                                         <td><%=payment.time.date%>/<%=payment.time.month%>/<%=payment.time.year%></td>
-                                        <td><%=payment.type%></td>
-                                        <td><%=payment.from%></td>
-                                        <td><%=payment.trnxId%></td>
                                         <td><%=payment.amount%></td>
+                                        <td><%=payment.from%></td>
+                                        <td><%=payment.type%></td>
+                                        <td><%=payment.trnxId%></td>
                                         <td>
                                         <label class="badge badge-warning">Pending</label>
                                         </td>
@@ -154,10 +154,10 @@
                                       <%     //Credit Green trnx %>
                                       <tr>
                                         <td><%=payment.time.date%>/<%=payment.time.month%>/<%=payment.time.year%></td>
-                                        <td><%=payment.type%></td>
-                                        <td><%=payment.from%></td>
-                                        <td><%=payment.trnxId%></td>
                                         <td><%=payment.amount%></td>
+                                        <td><%=payment.from%></td>
+                                        <td><%=payment.type%></td>
+                                        <td><%=payment.trnxId%></td>
                                         <td>
                                           <label class="badge badge-success">Credit</label>
                                         </td>
@@ -167,10 +167,10 @@
                                 <%        //Debit Red trnx  %>
                                         <tr>
                                         <td><%=payment.time.date%>/<%=payment.time.month%>/<%=payment.time.year%></td>
-                                        <td><%=payment.type%></td>
-                                        <td><%=payment.from%></td>
-                                        <td><%=payment.trnxId%></td>
                                         <td><%=payment.amount%></td>
+                                        <td><%=payment.from%></td>
+                                        <td><%=payment.type%></td>
+                                        <td><%=payment.trnxId%></td>
                                         <td>
                                         <label class="badge badge-info">Debit</label>
                                         </td>
@@ -181,10 +181,10 @@
                                 <%     //failed Trnx  %>
                                         <tr>
                                         <td><%=payment.time.date%>/<%=payment.time.month%>/<%=payment.time.year%></td>
-                                        <td><%=payment.type%></td>
-                                        <td><%=payment.from%></td>
-                                        <td><%=payment.trnxId%></td>
                                         <td><%=payment.amount%></td>
+                                        <td><%=payment.from%></td>
+                                        <td><%=payment.type%></td>
+                                        <td><%=payment.trnxId%></td>
                                         <td>
                                         <label class="badge badge-danger">Failed</label>
                                         </td>

@@ -359,38 +359,34 @@ app.get("/paymentGateway", async function(req, res) {
   }
 });
 
-app.get("/withdrawal", function(req, res){
-  if(!req.session.user){
-    res.status(200).send({redirect:true});
+app.get("/withdrawal", async function(req, res) {
+  if (!req.session.user) {
+     res.redirect('/');
   }else{
-
-      User.findOne({email: req.session.user.email}, function(err, foundUser){
-        if(err){
-          console.log(err);
-        }else{
-          if(!foundUser.bankDetails){
-            res.render('withdrawal', {
-              name: foundUser.username,
-              email: foundUser.email,
-              bankDetails: "Not provided",
-              availableBalance: foundUser.earnings.availableBalance,
-              alert: 'nil'
-
-            });
-          }else{
-          res.render('withdrawal', {
-            name: foundUser.username,
-            email: foundUser.email,
-            bankDetails: "Provided",
-            availableBalance: foundUser.earnings.availableBalance,
-            alert: 'nil'
-
-          });
-          }
-        }
-        });
+    try {
+      const foundUser = await User.findOne({ email: req.session.user.email });
+      
+      if (!foundUser) {
+        return res.status(404).send("User not found");
       }
+  
+      const bankDetails = foundUser.bankDetails ? "Provided" : "Not provided";
+      res.render('withdrawal', {
+        name: foundUser.username,
+        email: foundUser.email,
+        bankDetails: bankDetails,
+        availableBalance: foundUser.earnings.availableBalance,
+        alert: 'nil'
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+
+  
 });
+
 
 app.get('/transaction', async (req, res) => {
   if (!req.session.user) {
@@ -685,18 +681,18 @@ app.get('/generateQR', async (req, res) => {
   }
 });
 
-app.get("/adminUpdate", async function(req, res){
-  try{
-    const newAdmin = new Admin({
-      email:process.env.ADMIN,
-      payment:[],
-      withdrawal:[]
-    });
-    newAdmin.save();
-  }catch(err){
-    console.log(err);
-  }
-});
+// app.get("/adminUpdate", async function(req, res){
+//   try{
+//     const newAdmin = new Admin({
+//       email:process.env.ADMIN,
+//       payment:[],
+//       withdrawal:[]
+//     });
+//     newAdmin.save();
+//   }catch(err){
+//     console.log(err);
+//   }
+// });
 
 
 
@@ -1100,203 +1096,152 @@ app.post("/qrData", async (req, res) =>{
  }
 });
 
-app.post("/api/paymentGateway", function(req, res){
+
+app.post("/api/withdrawal", async function(req, res) {
   const timeZone = 'Asia/Kolkata';
   const currentTimeInTimeZone = DateTime.now().setZone(timeZone);
+  const { year, month, day: date, hour, minute: minutes } = currentTimeInTimeZone;
 
-
-  let year = currentTimeInTimeZone.year;
-  let month = currentTimeInTimeZone.month;
-  let date = currentTimeInTimeZone.day;
-  let hour = currentTimeInTimeZone.hour;
-  let minutes = currentTimeInTimeZone.minute;
-  if(!req.session.user){
-    res.status(200).send({redirect:true});
+  if (!req.session.user) {
+    return res.status(200).send({ redirect: true });
   }else{
-    User.findOne({email:req.session.user.email}, function(err, foundUser){
-      if(err){
-        console.log(err);
-      }else{
-        if(foundUser.task.status != "Inactive"){
-          res.status(200).send({plan: "Already enrolled"});
-        }else{
-          const amount = req.body.amount;
-          const tier = req.body.tier;
-          res.status(200).send({amount:amount, tier:tier,plan: "Not enrolled"});
 
-        }
+    try {
+      const foundUser = await User.findOne({ email: req.session.user.email });
+  
+      if (!foundUser) {
+        return res.status(404).send("User not found");
       }
-    });
-  }
-});
-
-app.post("/api/withdrawal", function(req, res){
-  const timeZone = 'Asia/Kolkata';
-  const currentTimeInTimeZone = DateTime.now().setZone(timeZone);
-
-
-  let year = currentTimeInTimeZone.year;
-  let month = currentTimeInTimeZone.month;
-  let date = currentTimeInTimeZone.day;
-  let hour = currentTimeInTimeZone.hour;
-  let minutes = currentTimeInTimeZone.minute;
-  if(!req.session.user){
-    res.status(200).send({redirect:true});
-  }else{
-      User.findOne({email: req.session.user.email}, function(err, foundUser){
-        if(err){
-          console.log(err);
-        }else{
-            const newValue =  foundUser.earnings.availableBalance - Number(req.body.amount);
-            //Minimum Withdrawal
-            if(req.body.amount<149){
-              const alertType = "warning";
-              const alert = "true"
-              const message = "Entered amount is less than Minimum withdraw"
-              res.status(200).send({alertType:alertType, alert:alert, message:message,
-              name: foundUser.username,
-              email: foundUser.email,
-              sponsorID: foundUser.sponsorID,
-              availableBalance: foundUser.earnings.availableBalance
-            });
-          }  else{
-            //lOW BALANCE
-            if(foundUser.earnings.availableBalance < req.body.amount){
-              const alertType = "warning";
-              const alert = "true"
-              const message = "Low balance!!"
-
-              res.status(200).send({alertType:alertType, alert:alert, message:message,
-                name: foundUser.username,
-                email: foundUser.email,
-                sponsorID: foundUser.sponsorID,
-                availableBalance: foundUser.earnings.availableBalance
-              });
-            }else{
-            //No Bank details
-              if(!foundUser.bankDetails){
-                const alertType = "warning";
-                const alert = "true"
-                const message = "Fill in you Bank Details to proceed"
-
-                res.status(200).send({alertType:alertType, alert:alert, message:message,
-                  name: foundUser.username,
-                  email: foundUser.email,
-                  sponsorID: foundUser.sponsorID,
-                  availableBalance: foundUser.earnings.availableBalance
-                });
-              }else{
-                let limitReached = false;
-                foundUser.transaction.forEach(function(transaction){
-                  if(transaction.from == "Withdraw"){
-                    if(transaction.status != 'Failed'){
-                      if(transaction.time.date == date && transaction.time.month == month){
-                        limitReached = true;
-                      }
-                    }
-                  }
-                });
-                if(limitReached == true){
-                  const alertType = "warning";
-                  const alert = "true"
-                  const message = "Daily Withdrawal limit reached"
-
-                  res.status(200).send({alertType:alertType, alert:alert, message:message,
-                    name: foundUser.username,
-                    email: foundUser.email,
-                    sponsorID: foundUser.sponsorID,
-                    availableBalance: foundUser.earnings.availableBalance
-                  });
-                }else{
-                //New balnce update
-                User.updateOne({email: req.session.user.email},
-                  {$set:
-                    {earnings:
-                      {
-                      currentPackage: foundUser.earnings.currentPackage,
-                      totalPackage: foundUser.earnings.totalPackage,
-                      totalIncome: foundUser.earnings.totalIncome,
-                      directIncome: foundUser.earnings.directIncome,
-                      levelIncome: foundUser.earnings.levelIncome,
-                      royalIncome: foundUser.earnings.royalIncome,
-                      teamAch: foundUser.earnings.teamAch,
-                      franchiseAch: foundUser.earnings.franchiseAch,
-                      availableBalance: newValue
-                      }}}, function(error){
-                  if(error){
-                    console.log(error);
-                  }else{
-                    const trnxID = "T" + String(Math.floor(Math.random()*999999999));
-                    //History and Transaction add up
-                    let history = foundUser.history;
-                    let transaction = foundUser.transaction;
-                    const newTransaction = {
-                      type: 'Debit',
-                      from: 'Withdraw',
-                      amount: req.body.amount,
-                      status: 'Pending',
-                      time:{
-                        date: date,
-                        month: month,
-                        year: year
-                      },
-                      trnxId: trnxID
-                    }
-                    transaction.push(newTransaction);
-
-                    User.updateOne({email: req.session.user.email}, {$set:{transaction:transaction}}, function(error){
-                      if(error){
-                        console.log(error);
-                      }
-                    });
-
-                    Admin.findOne({email:process.env.ADMIN}, function(err, foundAdmin){
-                      if(err){
-                        console.log(err);
-                      }else{
-                        let withdrawal = foundAdmin.withdrawal;
-                        const newWithdrawal = {
-                          trnxId: trnxID,
-                          amount: req.body.amount,
-                          email: foundUser.email,
-                          username: foundUser.username,
-                          time:{
-                            date: date,
-                            month: month,
-                            year: foundUser.bankDetails.bankName,
-                            minutes: foundUser.bankDetails.accountNumber,
-                            hour: foundUser.bankDetails.ifsc
-                          }
-                        }
-                        withdrawal.push(newWithdrawal);
-                        Admin.updateOne({email:process.env.ADMIN}, {$set:{withdrawal:withdrawal}}, function(err){
-                          if(err){
-                            console.log(err);
-                          }
-                        });
-                      }
-                    });
-                    const alert = 'true';
-                    const alertType = 'success';
-                    const message = 'Withdrawal Success'
-
-                    res.status(200).send({
-                      alert:alert,
-                      alertType:alertType,
-                      message:message,
-                      availableBalance: newValue
-                    });
-                  }
-                });
-                }
-              }
+  
+      const newValue = foundUser.earnings.availableBalance - Number(req.body.amount);
+  
+      if (req.body.amount < 149) {
+        return res.status(200).send({
+          alertType : "warning",
+          alert : "true",
+          loaderBg : '#57c7d4',
+          message: "Entered amount is less than Minimum withdraw",
+          name: foundUser.username,
+          email: foundUser.email,
+          sponsorID: foundUser.sponsorID,
+          availableBalance: foundUser.earnings.availableBalance
+        });
+      }
+  
+      if (foundUser.earnings.availableBalance < req.body.amount) {
+        return res.status(200).send({
+          alertType : "warning",
+          alert : "true",
+          loaderBg : '#57c7d4',
+          message: "Low balance!!",
+          name: foundUser.username,
+          email: foundUser.email,
+          sponsorID: foundUser.sponsorID,
+          availableBalance: foundUser.earnings.availableBalance
+        });
+      }
+  
+      if (!foundUser.bankDetails) {
+        return res.status(200).send({
+          alertType : "warning",
+          alert : "true",
+          loaderBg : '#57c7d4',
+          message: "Fill in you Bank Details to proceed",
+          name: foundUser.username,
+          email: foundUser.email,
+          sponsorID: foundUser.sponsorID,
+          availableBalance: foundUser.earnings.availableBalance
+        });
+      }
+  
+      let limitReached = false;
+      foundUser.transaction.forEach(transaction => {
+        if (transaction.from === "Withdraw" && transaction.status !== 'failed' &&
+            transaction.time.date === date && transaction.time.month === month) {
+          limitReached = true;
+        }
+      });
+  
+      if (limitReached) {
+        return res.status(200).send({
+          alertType: "warning",
+          alert: "true",
+          message: "Daily Withdrawal limit reached",
+          name: foundUser.username,
+          email: foundUser.email,
+          sponsorID: foundUser.sponsorID,
+          availableBalance: foundUser.earnings.availableBalance
+        });
+      }else{
+  
+        await User.updateOne({ email: req.session.user.email }, {
+          $set: {
+            earnings: {
+              compoundIncome: foundUser.earnings.compoundIncome,
+              weeklySalary: foundUser.earnings.weeklySalary,
+              totalIncome: foundUser.earnings.totalIncome,
+              directIncome: foundUser.earnings.directIncome,
+              levelIncome: foundUser.earnings.levelIncome,
+              teamBuilder: foundUser.earnings.teamBuilder,
+              addition: foundUser.earnings.addition,
+              addition2: foundUser.earnings.addition2,
+              availableBalance: newValue
             }
           }
+        });
+    
+        const trnxID = String(Math.floor(Math.random() * 999999999));
+    
+        const newTransaction = {
+          type: 'Debit',
+          from: 'Withdraw',
+          amount: req.body.amount,
+          status: 'Pending',
+          time: { date, month, year },
+          trnxId: trnxID
+        };
+    
+        await User.updateOne({ email: req.session.user.email }, {
+          $push: { transaction: newTransaction }
+        });
+    
+        const foundAdmin = await Admin.findOne({ email: process.env.ADMIN });
+    
+        if (foundAdmin) {
+          const newWithdrawal = {
+            trnxId: trnxID,
+            amount: req.body.amount,
+            email: foundUser.email,
+            username: foundUser.username,
+            time: {
+              date,
+              month,
+              year,
+              minutes,
+              hour
+            }
+          };
+    
+          await Admin.updateOne({ email: process.env.ADMIN }, {
+            $push: { withdrawal: newWithdrawal }
+          });
         }
-
-      });
+    
+        res.status(200).send({
+          alert: 'true',
+          alertType: 'success',
+          message: 'Withdrawal Success',
+          availableBalance: newValue
+        });
+      }
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Internal Server Error");
+    }
   }
 
+  
 });
 
 app.post('/planActivation', async (req, res) => {
@@ -1565,6 +1510,114 @@ app.post('/planActivation', async (req, res) => {
     }
   }
 });
+
+app.post("/api/creditWithdrawal", async function(req, res) {
+  const timeZone = 'Asia/Kolkata';
+  const currentTimeInTimeZone = DateTime.now().setZone(timeZone);
+  const { year, month, day: date, hour, minute: minutes } = currentTimeInTimeZone;
+
+  if (!req.session.admin) {
+    return res.redirect('/adminLogin');
+  }
+
+  try {
+    const foundAdmin = await Admin.findOne({ email: process.env.ADMIN });
+    if (!foundAdmin) {
+      return res.status(404).send("Admin not found");
+    }else{
+      const foundUser = await User.findOne({ email: req.body.email });
+      if (!foundUser) {
+        return res.status(404).send("User not found");
+      }else{
+        
+        if (req.body.approval === 'true') {
+  
+          const updatedTransaction = foundUser.transaction.map(transaction => {
+            if (transaction.trnxId === req.body.trnxId) {
+              const modifiedTransaction = {
+                time: transaction.time,
+                type: transaction.type,
+                from: transaction.from,
+                amount: transaction.amount,
+                status: 'success',
+                trnxId: transaction.trnxId,
+                _id: transaction._id
+              };
+              return modifiedTransaction;
+            }
+            return transaction;
+          });
+          
+          
+          try {
+            const updateResult = await User.updateOne(
+              { email: req.body.email },
+              { $set: { transaction: updatedTransaction } }
+            );
+          } catch (error) {
+            console.error("Error updating transaction:", error);
+          }
+    
+          let updatedArray = foundAdmin.withdrawal.filter(transaction => transaction.trnxId !== req.body.trnxId);
+          await Admin.updateOne({ email: process.env.ADMIN }, { $set: { withdrawal: updatedArray } });
+        } else {
+          await User.updateOne({ email: req.body.email }, {
+            $set: {
+              earnings: {
+                compoundIncome: foundUser.earnings.compoundIncome,
+                weeklySalary: foundUser.earnings.weeklySalary,
+                totalIncome: foundUser.earnings.totalIncome,
+                directIncome: foundUser.earnings.directIncome,
+                levelIncome: foundUser.earnings.levelIncome,
+                teamBuilder: foundUser.earnings.teamBuilder,
+                addition: foundUser.earnings.addition,
+                addition2: foundUser.earnings.addition2,
+                availableBalance: foundUser.earnings.availableBalance + Math.floor(Number(req.body.amount))
+              }
+            }
+          });
+    
+          const updatedTransaction = foundUser.transaction.map(transaction => {
+            if (transaction.trnxId === req.body.trnxId) {
+              const modifiedTransaction = {
+                time: transaction.time,
+                type: transaction.type,
+                from: transaction.from,
+                amount: transaction.amount,
+                status: 'failed',
+                trnxId: transaction.trnxId,
+                _id: transaction._id
+              };
+              return modifiedTransaction;
+            }
+            return transaction;
+          });
+          
+          
+          try {
+            await User.updateOne(
+              { email: req.body.email },
+              { $set: { transaction: updatedTransaction } }
+            );
+          } catch (error) {
+            console.error("Error updating transaction:", error);
+          }
+    
+          let updatedArray = foundAdmin.withdrawal.filter(transaction => transaction.trnxId !== req.body.trnxId);
+          await Admin.updateOne({ email: process.env.ADMIN }, { $set: { withdrawal: updatedArray } });
+        }
+      }
+  
+    }
+
+
+    res.redirect('/admin');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 app.post("/api/creditWithdrawal", function(req, res){
   const timeZone = 'Asia/Kolkata';

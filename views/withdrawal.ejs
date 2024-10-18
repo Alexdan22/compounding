@@ -93,7 +93,7 @@
             <div class="submenu">
               <ul class="submenu-item">
                 <li class="nav-item"><a class="nav-link" href="/paymentGateway">Payment Gateway</a></li>
-                <li class="nav-item"><a class="nav-link" href="">Withdrawal</a></li>
+                <li class="nav-item"><a class="nav-link" href="/withdrawal">Withdrawal</a></li>
                 <li class="nav-item"><a class="nav-link" href="/transaction">History and Transaction</a></li>
               </ul>
             </div>
@@ -125,16 +125,21 @@
                         </div>
                         <div class="py-4"><div class="text-center mb-1">
 
-                            <form class="forms-sample material-form">
-                                <div class="form-group">
-                                    <input type="number" autocomplete="off" id="amount" name="amount" required="required" />
+                            <form class="forms-sample material-form bordered">
+                                <p class="card-subtitle text-center card-subtitle-dash">Available Balance: <span class="card-subtitle text-center card-subtitle-dash" id="availableBalance"><%=availableBalance%></span></p>
+                                <div class="form-group text-center">
+                                    <input type="number" class="text-center" autocomplete="off" id="amount" name="amount" required="required" />
                                     <label for="input" class="control-label">ENTER AMOUNT</label><i class="bar"></i>
                                 </div>
                                 <div class="button-container text-center">
-                                    <button type="button" onclick="withdrawal()" class="button btn-primary"><span>Confirm</span></button>
+                                    <button type="button" onclick="withdraw()" class="button btn-primary"><span>Confirm</span></button>
                                 </div>
                                 <div class="text-center mt-4">
-                                  <p class="statistics-title">(Note: The provided details might change from time to time, please scan and pay each time)</p>
+                                  <h6 class=" text-sm">Policy and rules</h6>
+                                  <p class="card-subtitle card-subtitle-dash">Minimum withdrawal amount is 180</p>
+                                  <p class=" card-subtitle card-subtitle-dash">Withdrawals may take upto 24 working hours</p>
+                                  <p class=" card-subtitle card-subtitle-dash">Transaction charges applied</p>
+                                  <p class=" card-subtitle card-subtitle-dash">Only one withdrawal per day.</p>
                                 </div>
                                 </form>
                         </div>

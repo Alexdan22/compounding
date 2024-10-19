@@ -425,13 +425,14 @@
 
   <!-- plugins:js -->
    <script>
-    const userID = document.getElementById('userID');
+    const userID = document.getElementById('userID').innerHTML;
     const shareLink = async()=>{
+      console.log(userID);
       if (navigator.share) {
         try {
           await navigator.share({
             title: 'Check out this website!',
-            url: 'https://coumpounding.site/register' + userID
+            url: 'https://coumpounding.site/register/' + userID
           });
           console.log('Thanks for sharing!');
         } catch (error) {
@@ -441,46 +442,6 @@
         alert('Web Share API is not supported in this browser.');
       }
     }
-  </script>
-  <script>
-    //Withdraw button handler
-const transferToWallet = function(){
-  amount = document.getElementById('amount').value
-  $.ajax({
-    url: '/transferToWallet',
-    // dataType: "jsonp",
-    data: {
-      amount: amount
-    },
-    type: 'POST',
-    success: function (data) {
-      if( data.redirect == undefined){
-        if(data.alert == 'true'){
-          'use strict';
-            resetToastPosition();
-            $.toast({
-              heading: data.alertType,
-              text: data.message,
-              showHideTransition: 'slide',
-              icon: data.alertType,
-              loaderBg: data.loaderBg,
-              position: 'top-center'
-            });
-        }
-        if(data.alertType == 'success'){
-         dashboard2000();
-        }
-        
-      }else{
-        login2000();
-      }
-    },
-    error: function (status, error) {
-        console.log('Error: ' + error.message);
-    },
-  });
-}
-
   </script>
   <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
   <script src="../assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>

@@ -241,6 +241,46 @@ const withdraw = function(){
 }
 
 
+//Withdraw button handler
+const transferToWallet = function(){
+  amount = document.getElementById('amount').value
+  $.ajax({
+    url: '/transferToWallet',
+    // dataType: "jsonp",
+    data: {
+      amount: amount
+    },
+    type: 'POST',
+    success: function (data) {
+      if( data.redirect == undefined){
+        if(data.alert == 'true'){
+          'use strict';
+            resetToastPosition();
+            $.toast({
+              heading: data.alertType,
+              text: data.message,
+              showHideTransition: 'slide',
+              icon: data.alertType,
+              loaderBg: data.loaderBg,
+              position: 'top-center'
+            });
+        }
+        if(data.alertType == 'success'){
+          dashboard2000();
+        }
+        
+      }else{
+        login2000();
+      }
+    },
+    error: function (status, error) {
+        console.log('Error: ' + error.message);
+    },
+  });
+}
+    
+
+
 
 
 

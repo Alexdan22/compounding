@@ -14,7 +14,8 @@ const schedule = require('node-schedule');
 const sdk = require('api')('@decentro/v1.0#pwx2s1ddlp6q9m73');
 const { DateTime } = require('luxon');
 const app = express();
-const QRCode = require('qrcode')
+const QRCode = require('qrcode');
+const { log } = require('console');
 
 app.set('view engine', 'ejs');
 
@@ -1131,6 +1132,8 @@ app.post('/creditCustom', async (req, res)=>{
     res.redirect('/adminLogin');
   }else{
     try {
+      console.log(req.body);
+      
       const foundUser = await User.findOne({email:req.body.email});
       if(req.body.type == 'club'){
         await User.updateOne({ email: foundUser.email }, {

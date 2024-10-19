@@ -30,48 +30,42 @@
   <div class="container-scroller">
     <!-- partial:../../partials/_horizontal-navbar.html -->
     <div class="horizontal-menu">
-  <nav class="navbar top-navbar col-lg-12 col-12 p-0">
-    <div class="container">
-      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start me-lg-3">
-        <div>
-          <a class="navbar-brand brand-logo" href="/dashboard">
-            <img src="../../../assets/images/logo-light.svg" alt="logo" />
-          </a>
-          <a class="navbar-brand brand-logo-mini" href="/dashboard">
-            <img src="../../../assets/images/logo-mini-reverse.svg" alt="logo" />
-          </a>
-        </div>
-      </div>
-      <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
-        <ul class="navbar-nav navbar-nav-right">
-          <li class="nav-item dropdown d-lg-flex user-dropdown">
-            <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-              <img class="img-xs rounded-circle" src="../../../assets/images/faces/face8.jpg" alt="Profile image"> </a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
-              <div class="dropdown-header text-center">
-                <img class="img-md rounded-circle" src="../../../assets/images/faces/face8.jpg" alt="Profile image">
-                <p class="mb-1 mt-3 fw-semibold">Allen Moreno</p>
-                <p class="fw-light text-muted mb-0">allenmoreno@gmail.com</p>
-              </div>
-              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My
-                Profile <span class="badge badge-pill badge-danger">1</span></a>
-              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i>
-                Messages</a>
-              <a class="dropdown-item"><i
-                  class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i> Activity</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i>
-                FAQ</a>
-              <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
+      <nav class="navbar top-navbar col-lg-12 col-12 p-0">
+        <div class="container">
+          <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start me-lg-3">
+            <div>
+              <a class="navbar-brand brand-logo" href="/dashboard">
+                <img src="../assets/images/logo.png" alt="logo" />
+              </a>
+              <a class="navbar-brand brand-logo-mini" href="/dashboard">
+                <img src="../assets/images/logo.png" alt="logo" />
+              </a>
             </div>
-          </li>
-        </ul>
-        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-          data-toggle="horizontal-menu-toggle">
-          <span class="ti-menu"></span>
-        </button>
-      </div>
-    </div>
-  </nav>
+          </div>
+          <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav navbar-nav-right">
+              <li class="nav-item dropdown d-lg-flex user-dropdown">
+                <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img class="img-xs rounded-circle" src="../assets/images/faces/face8.jpg" alt="Profile image"> </a>
+                <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+                  <div class="dropdown-header text-center">
+                    <img class="img-md rounded-circle" src="../assets/images/faces/face8.jpg" alt="Profile image">
+                    <p class="mb-1 mt-3 fw-semibold"><%=username%></p>
+                    <p class="fw-light text-muted mb-0"><%=email%></p>
+                  </div>
+                  <a class="dropdown-item" href="/profile"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My
+                    Profile</a>
+                  <a class="dropdown-item" href="/log-out"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
+                </div>
+              </li>
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+              data-toggle="horizontal-menu-toggle">
+              <span class="ti-menu"></span>
+            </button>
+          </div>
+        </div>
+      </nav>
   <nav class="bottom-navbar">
     <div class="container">
         <ul class="nav page-navigation">
@@ -127,7 +121,7 @@
                         <div class="py-4">
                           <p class="clearfix">
                             <span class="float-start">
-                              Mail
+                              Email
                             </span>
                             <span class="float-end text-muted">
                               <%=email%>
@@ -184,7 +178,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="pills-profile-tab-custom" data-bs-toggle="pill" href="#downlines"
+                                    <a class="nav-link" id="pills-profile-tab-custom" data-bs-toggle="pill" onclick="team()" href="#downlines"
                                     role="tab" aria-controls="pills-profile" aria-selected="false">
                                     Team
                                     </a>
@@ -197,11 +191,7 @@
                                 </div>
                                 <div class="tab-pane fade" id="downlines" role="tabpanel"
                                     aria-labelledby="pills-profile-tab-custom">
-                                    <div class="media">
-                                    <img class="me-3 w-25 rounded" src="../../../assets/images/samples/300x300/10.jpg"
-                                        alt="sample image">
-                                    <div class="media-body">
-                                    </div>
+                                    <div id="team_details">
                                     </div>
                                 </div>
                                 </div>

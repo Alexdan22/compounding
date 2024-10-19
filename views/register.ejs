@@ -33,9 +33,6 @@
           <div class="row w-100 mx-0">
             <div class="col-lg-4 mx-auto">
               <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                <div class="brand-logo">
-                  <img src="../../../assets/images/logo.svg" alt="logo">
-                </div>
                 <h4>New here?</h4>
                 <h6 class="fw-light">Signing up is easy. It only takes a few steps</h6>
                 <form class="pt-3">
@@ -55,10 +52,19 @@
                     <input type="password" name="confirmPassword" class="form-control form-control-lg" id="confirmPassword"
                       placeholder="Re-enter Password">
                   </div>
+                  <%  if(sponsor == 'true'){  %>
+                  <div class="form-group">
+                    <input type="text" name="sponsorID" class="form-control form-control-lg" id="sponsorID"
+                      placeholder="Enter Sponsor ID" value="<%=sponsorID%>">
+                  </div>
+
+                  <%  }else{  %>
                   <div class="form-group">
                     <input type="text" name="sponsorID" class="form-control form-control-lg" id="sponsorID"
                       placeholder="Enter Sponsor ID">
                   </div>
+
+                  <%  }  %>
                   <div class="mb-4">
                     <div class="form-check">
                       <label class="form-check-label text-muted">

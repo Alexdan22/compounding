@@ -91,3 +91,63 @@ const bank = function(){
         }
       });
 }
+
+const team = function(){
+  $.ajax({
+    url: "/downline",
+    type: "GET",
+    success:function(data){
+        const team = document.getElementById('team_details');
+        if(data.redirect == undefined){
+          if(data.downlines.length == 0){
+            team.innerHTML = `
+                                  <p class="card-subtitle card-subtitle-dash">No team memebers found</p>
+                                  `
+          }else{
+            team.innerHTML = `<div class="row mb-4">
+                                        <div class="col-sm-12">
+                                        <div class="statistics-details d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="statistics-title">Total Downlines</p>
+                                                <h3 class="rate-percentage text-center">`+data.totalDownline.length+`</h3>
+                                            </div>
+                                            <div class="text-end">
+                                                <p class="statistics-title">Active Downlines</p>
+                                                <h3 class="rate-percentage text-center text-success">`+data.activeDownline.length+`</h3>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>`
+            data.downlines.forEach(function(user){
+              if(user.status == 'Active'){
+                team.innerHTML += `
+                    <div class="d-flex align-items-center mt-3 pb-3 border-bottom">
+                      <img class="img-sm rounded-circle" src="../../../assets/images/active.png" alt="profile">
+                      <div class="ms-3">
+                        <h6 class="mb-1">`+user.username+`</h6>
+                        <small class="text-muted mb-0">`+user.email+`</small>
+                      </div>
+                    </div>`
+              }else{
+                team.innerHTML += `
+                    <div class="d-flex align-items-center mt-3 pb-3 border-bottom">
+                      <img class="img-sm rounded-circle" src="../../../assets/images/idle.png" alt="profile">
+                      <div class="ms-3">
+                        <h6 class="mb-1">`+user.username+`</h6>
+                        <small class="text-muted mb-0">`+user.email+`</small>
+                      </div>
+                    </div>`
+              }
+            })
+          }
+        }else{
+            login2000()
+        }
+    },
+    error: function(status, error){
+      console.log('Error: ' + error.message);
+    }
+  });
+}
+
+

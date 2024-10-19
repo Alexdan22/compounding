@@ -184,7 +184,16 @@ const paymentSchema = new mongoose.Schema({
     hour: String
   },
   status: String
-})
+});
+const loanSchema = new mongoose.Schema({
+  amount: Number,
+  email: String,
+  username: String,
+  approval: String,
+  aadhaar: Number,
+  pan: String,
+  mobile: Number
+});
 const qrDataSchema = new mongoose.Schema({ text: String });
 
 
@@ -197,6 +206,8 @@ const Admin = new mongoose.model("Admin", adminSchema);
 const Payment = new mongoose.model("Payment", paymentSchema);
 
 const Data = new mongoose.model('Data', qrDataSchema);
+
+const Loan = new mongoose.model('Loan', loanSchema);
 
 //ROUTES
 app.get("/", function(req, res){
@@ -442,6 +453,71 @@ app.get("/admin", async function(req, res) {
   }
 });
 
+app.get("/teamLevel", async (req, res) =>{
+  if(!req.session.user){
+    res.redirect('/');
+  }else{
+    try{
+      const foundUser = await User.findOne({email:req.session.user.email});
+      const direct = await User.find({sponsorID:foundUser.userID});
+      const level1 = [];
+      const level2 = [];
+      const level3 = [];
+      const level4 = [];
+      const level5 = [];
+
+      direct.forEach(async(user)=>{
+       const foundLevel1 = await User.find({sponsorID:user.userID});
+
+       Array.prototype.push.apply(level1, foundLevel1);
+      });
+
+      level1.forEach(async(user)=>{
+        const foundLevel2 = await User.find({sponsorID:user.userID});
+ 
+        Array.prototype.push.apply(level2, foundLevel2);
+       });
+
+       level2.forEach(async(user)=>{
+        const foundLevel3 = await User.find({sponsorID:user.userID});
+ 
+        Array.prototype.push.apply(level3, foundLevel3);
+       });
+
+       level3.forEach(async(user)=>{
+         const foundLevel4 = await User.find({sponsorID:user.userID});
+  
+         Array.prototype.push.apply(level4, foundLevel4);
+        });
+ 
+        level4.forEach(async(user)=>{
+         const foundLevel5 = await User.find({sponsorID:user.userID});
+  
+         Array.prototype.push.apply(level5, foundLevel5);
+        });
+        
+        const total = direct + level1 + level2 + level3 + level4 + level5;
+
+    }catch(err){
+      console.log(err)
+    }
+  }
+})
+
+// app.get("/adminUpdate", async function(req, res){
+//   try{
+//     const newAdmin = new Admin({
+//       email:process.env.ADMIN,
+//       payment:[],
+//       withdrawal:[]
+//     });
+//     newAdmin.save();
+//   }catch(err){
+//     console.log(err);
+//   }
+// });
+
+
 app.get("/currentInvestors", function(req, res){
   if(!req.session.admin){
     res.redirect('/adminLogin');
@@ -483,25 +559,6 @@ app.get("/register/:sponsorID", function(req, res){
 app.get("/log-out", function(req, res){
   req.session.destroy();
   res.redirect("/");
-});
-
-app.get("/api/transactionID/:trnxId", function(req, res){
-  if(!req.session.user){
-    res.status(200).send({redirect:true});
-  }else{
-    User.findOne({email:req.session.user.email}, function(err, foundUser){
-      if(err){
-        console.log(err);
-      }else{
-        const trnxId = req.params.trnxId;
-        foundUser.transaction.forEach(function(transaction){
-          if(transaction.trnxId == trnxId){
-            res.status(200).send({foundTransaction: transaction});
-          }
-        })
-      }
-    })
-  }
 });
 
 app.get('/idActivation', (req, res) => {
@@ -625,21 +682,71 @@ app.get('/recurringCompound', async (req, res) => {
   }
 });
 
-app.get('/downline', (req, res) => {
-  if(!req.session.user){
-    res.status(200).send({redirect:true});
+app.get('/downline', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(200).send({ redirect: true });
   }else{
-    User.findOne({email:req.session.userl.email}, function(err, foundUser){
-      if(err){
-        console.log(err);
-      }else{
-        User.findMany({sposnorID: foundUser.userID}, (err, downlines)=>{
-          res.status(200).send({downlines})
-        })
-      }
-    })
+    try {
+      const foundUser = await User.findOne({ email: req.session.user.email });
+      const totalDownline = [];
+      const direct = await User.find({sponsorID:foundUser.userID});
+      Array.prototype.push.apply(totalDownline, direct);
+
+      const level1 = [];
+      const level2 = [];
+      const level3 = [];
+      const level4 = [];
+      const level5 = [];
+
+      direct.forEach(async(user)=>{
+       const foundLevel1 = await User.find({sponsorID:user.userID});
+
+       Array.prototype.push.apply(level1, foundLevel1);
+       Array.prototype.push.apply(totalDownline, foundLevel1);
+      });
+
+      level1.forEach(async(user)=>{
+        const foundLevel2 = await User.find({sponsorID:user.userID});
+ 
+        Array.prototype.push.apply(level2, foundLevel2);
+        Array.prototype.push.apply(totalDownline, foundLevel2);
+       });
+
+       level2.forEach(async(user)=>{
+        const foundLevel3 = await User.find({sponsorID:user.userID});
+ 
+        Array.prototype.push.apply(level3, foundLevel3);
+        Array.prototype.push.apply(totalDownline, foundLevel3);
+       });
+
+       level3.forEach(async(user)=>{
+         const foundLevel4 = await User.find({sponsorID:user.userID});
+  
+         Array.prototype.push.apply(level4, foundLevel4);
+         Array.prototype.push.apply(totalDownline, foundLevel4);
+        });
+ 
+        level4.forEach(async(user)=>{
+         const foundLevel5 = await User.find({sponsorID:user.userID});
+  
+         Array.prototype.push.apply(level5, foundLevel5);
+         Array.prototype.push.apply(totalDownline, foundLevel5);
+        });
+        
+        const activeDownline = totalDownline.filter(activeUsers => activeUsers.status === 'Active');
+        const downlines = await User.find({ sponsorID: foundUser.userID });
+        const total = downlines.length;
+        const current = downlines.filter(activeUsers => activeUsers.status === 'Active');
+        const currentUsers = current.length;
+        res.status(200).send({ downlines, total, currentUsers, totalDownline, activeDownline });
+  
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
   }
-})
+
+});
 
 app.get('/activeUsers', function(req, res){
   if(!req.session.admin){
@@ -681,24 +788,10 @@ app.get('/generateQR', async (req, res) => {
   }
 });
 
-// app.get("/adminUpdate", async function(req, res){
-//   try{
-//     const newAdmin = new Admin({
-//       email:process.env.ADMIN,
-//       payment:[],
-//       withdrawal:[]
-//     });
-//     newAdmin.save();
-//   }catch(err){
-//     console.log(err);
-//   }
-// });
-
-
-
-
 
 //POSTS
+
+
 
 app.post("/adminLogin", function(req, res){
   if(process.env.ADMIN === req.body.email){
@@ -714,41 +807,31 @@ app.post("/adminLogin", function(req, res){
     //Not an User
     res.redirect('/adminLogin');
   }
-}); //adw
+});
 
-app.post('/userPanel', function(req, res){
-  if(!req.session.admin){
-    res.redirect('/adminLogin');
-  }else{
-      if(req.body.type == "email"){
-        User.findOne({email:req.body.input}, function(err, foundUser){
-          if(err){
-            console.log(err);
-          }else{
-            if(!foundUser){
-              res.redirect('/admin');
-            }else{
-              req.session.user = {email:foundUser.email};
-              res.redirect("/dashboard");
-            }
-          }
-        });
-      }else{
-        User.findOne({userID:req.body.input}, function(err, foundUser){
-          if(err){
-            console.log(err);
-          }else{
-            if(!foundUser){
-              res.redirect('/admin');
-            }else{
-              req.session.user = {email:foundUser.email};
-              res.redirect("/dashboard");
-            }
-          }
-        });
-      }
+app.post('/userPanel', async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/adminLogin');
+  }
+
+  try {
+    const { type, input } = req.body;
+    const foundUser = type === "email" 
+      ? await User.findOne({ email: input }) 
+      : await User.findOne({ userID: input });
+
+    if (!foundUser) {
+      return res.redirect('/admin');
     }
-  }); //adw
+
+    req.session.user = { email: foundUser.email };
+    res.redirect("/dashboard");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 app.post('/unsetBankDetails', function(req, res){
   if(!req.session.admin){
@@ -776,7 +859,7 @@ app.post('/unsetBankDetails', function(req, res){
       }
     });
   }
-}); //adw
+});
 
 app.post('/api/login', async (req, res) => {
   try {
@@ -816,7 +899,7 @@ app.post('/api/login', async (req, res) => {
       loaderBg: '#ff0000'
     });
   }
-}); //adw
+});
 
 app.post('/api/register', async (req, res) => {
   const timeZone = 'Asia/Kolkata';
@@ -893,7 +976,6 @@ app.post('/api/register', async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
- //adw
 
 app.post("/api/bankDetails", async function(req, res) {
   if (!req.session.user) {
@@ -947,6 +1029,178 @@ app.post('/reviewCompounding', async (req, res) =>{
       res.redirect('/admin');
 
     }catch(err){
+      console.log(err);
+    }
+  }
+});
+
+app.post('/transferToWallet', async (req, res) =>{
+  if(!req.session.user){
+    res.redirect('/');
+  }else{
+    try{
+      const foundUser = await User.findOne({email: req.session.user.email});
+
+      if(foundUser.compound.interest == 0){
+        const alertType = "warning";
+          const alert = "true";
+          const loaderBg = '#57c7d4';
+          const message = "Transfer failed";
+          res.status(200).send({ alertType, alert, message, loaderBg });
+
+      }else{
+        
+      if(Number(req.body.amount) < 200){
+        const alertType = "warning";
+          const alert = "true";
+          const loaderBg = '#57c7d4';
+          const message = "Entered amount is low, transfer failed";
+          res.status(200).send({ alertType, alert, message, loaderBg });
+      }else{
+        if(foundUser.compound.interest < Number(req.body.amount)){
+          const alertType = "warning";
+          const alert = "true";
+          const loaderBg = '#57c7d4';
+          const message = "Low balance";
+          res.status(200).send({ alertType, alert, message, loaderBg });
+        }else{
+
+          await User.updateOne({email:foundUser.email}, {$set:{compound:{
+            active: foundUser.compound.active,
+            total: foundUser.compound.total,
+            interest: foundUser.compound.interest - Number(req.body.amount),
+            days: foundUser.compound.days,
+            percentage: foundUser.compound.percentage
+          }}});
+
+          await User.updateOne({ email: foundUser.email }, {
+            $set: {
+              earnings: {
+                compoundIncome: foundUser.earnings.compoundIncome,
+                weeklySalary: foundUser.earnings.weeklySalary,
+                totalIncome: foundUser.earnings.totalIncome,
+                directIncome: foundUser.earnings.directIncome,
+                levelIncome: foundUser.earnings.levelIncome,
+                teamBuilder: foundUser.earnings.teamBuilder,
+                addition: foundUser.earnings.addition,
+                addition2: foundUser.earnings.addition2,
+                availableBalance: foundUser.earnings.availableBalance + Number(req.body.amount)
+              }
+            }
+          });
+      
+          const trnxID = String(Math.floor(Math.random() * 999999999));
+      
+          const newTransaction = {
+            type: 'Credit',
+            from: 'Transfer',
+            amount: req.body.amount,
+            status: 'success',
+            time: { date, month, year },
+            trnxId: trnxID
+          };
+      
+          await User.updateOne({ email: req.session.user.email }, {
+            $push: { transaction: newTransaction }
+          });
+          const alertType = "success";
+          const alert = "true";
+          const loaderBg = '#f96868';
+          const message = "Transferred interest successfully";
+          res.status(200).send({ alertType, alert, message, loaderBg });
+      
+        }
+      }
+      }
+    }catch(err){
+      console.log(err);
+    }
+  }
+});
+
+app.post('/creditCustom', async (req, res)=>{
+  const timeZone = 'Asia/Kolkata';
+  const currentTimeInTimeZone = DateTime.now().setZone(timeZone);
+
+  let year = currentTimeInTimeZone.year;
+  let month = currentTimeInTimeZone.month;
+  let date = currentTimeInTimeZone.day;
+
+
+  if(!req.session.admin){
+    res.redirect('/adminLogin');
+  }else{
+    try {
+      const foundUser = await User.findOne({email:req.body.email});
+      if(req.body.type == 'club'){
+        await User.updateOne({ email: foundUser.email }, {
+          $set: {
+            earnings: {
+              compoundIncome: foundUser.earnings.compoundIncome,
+              weeklySalary: foundUser.earnings.weeklySalary + Number(req.body.amount),
+              totalIncome: foundUser.earnings.totalIncome + Number(req.body.amount),
+              directIncome: foundUser.earnings.directIncome,
+              levelIncome: foundUser.earnings.levelIncome,
+              teamBuilder: foundUser.earnings.teamBuilder,
+              addition: foundUser.earnings.addition,
+              addition2: foundUser.earnings.addition2,
+              availableBalance: foundUser.earnings.availableBalance + Number(req.body.amount)
+            }
+          }
+        });
+    
+        const trnxID = String(Math.floor(Math.random() * 9999999));
+    
+        const newTransaction = {
+          type: 'Credit',
+          from: 'Club Income',
+          amount: req.body.amount,
+          status: 'success',
+          time: { date, month, year },
+          trnxId: trnxID
+        };
+    
+        await User.updateOne({ email: foundUser.email }, {
+          $push: { transaction: newTransaction }
+        });
+      }
+      if(req.body.type == 'team'){
+        await User.updateOne({ email: foundUser.email }, {
+          $set: {
+            earnings: {
+              compoundIncome: foundUser.earnings.compoundIncome,
+              weeklySalary: foundUser.earnings.weeklySalary,
+              totalIncome: foundUser.earnings.totalIncome + Number(req.body.amount),
+              directIncome: foundUser.earnings.directIncome,
+              levelIncome: foundUser.earnings.levelIncome,
+              teamBuilder: foundUser.earnings.teamBuilder + Number(req.body.amount),
+              addition: foundUser.earnings.addition,
+              addition2: foundUser.earnings.addition2,
+              availableBalance: foundUser.earnings.availableBalance + Number(req.body.amount)
+            }
+          }
+        });
+    
+        const trnxID = String(Math.floor(Math.random() * 9999999));
+    
+        const newTransaction = {
+          type: 'Credit',
+          from: 'Team Bonus',
+          amount: req.body.amount,
+          status: 'success',
+          time: { date, month, year },
+          trnxId: trnxID
+        };
+    
+        await User.updateOne({ email: foundUser.email }, {
+          $push: { transaction: newTransaction }
+        });        
+      }
+      if(req.body.type == 'loan'){
+        
+      }
+      res.redirect('/admin');
+    } catch (err) {
       console.log(err);
     }
   }
@@ -1062,7 +1316,6 @@ app.post("/api/paymentVerification", async function(req, res) {
     }
   }
 });
- //mc
 
 app.post("/qrData", async (req, res) =>{
  if(!req.session.admin){
@@ -1080,11 +1333,7 @@ app.post("/qrData", async (req, res) =>{
      }else{
            
        //Update QR or UPI details
-       Data.updateOne({}, {$set:{text:req.body.upi}}, function(err){
-         if(err){
-           console.log(err);
-         }
-       });
+       await Data.updateOne({}, {$set:{text:req.body.upi}});
        res.redirect('/admin');
      }
      
@@ -1095,7 +1344,6 @@ app.post("/qrData", async (req, res) =>{
 
  }
 });
-
 
 app.post("/api/withdrawal", async function(req, res) {
   const timeZone = 'Asia/Kolkata';
@@ -1115,7 +1363,7 @@ app.post("/api/withdrawal", async function(req, res) {
   
       const newValue = foundUser.earnings.availableBalance - Number(req.body.amount);
   
-      if (req.body.amount < 149) {
+      if (req.body.amount < 199) {
         return res.status(200).send({
           alertType : "warning",
           alert : "true",
@@ -1228,8 +1476,9 @@ app.post("/api/withdrawal", async function(req, res) {
         }
     
         res.status(200).send({
-          alert: 'true',
-          alertType: 'success',
+          alertType: "success",
+          alert: "true",
+          loaderBg: '#f96868',
           message: 'Withdrawal Success',
           availableBalance: newValue
         });
@@ -1618,224 +1867,6 @@ app.post("/api/creditWithdrawal", async function(req, res) {
   }
 });
 
-
-app.post("/api/creditWithdrawal", function(req, res){
-  const timeZone = 'Asia/Kolkata';
-  const currentTimeInTimeZone = DateTime.now().setZone(timeZone);
-
-
-  let year = currentTimeInTimeZone.year;
-  let month = currentTimeInTimeZone.month;
-  let date = currentTimeInTimeZone.day;
-  let hour = currentTimeInTimeZone.hour;
-  let minutes = currentTimeInTimeZone.minute;
-  if(!req.session.admin){
-    res.redirect('/adminLogin')
-  }else{
-    if(req.body.approval == 'true'){
-    Admin.findOne({email:process.env.ADMIN}, function(err, foundAdmin){
-      if(err){
-        console.log(err);
-      }else{
-        User.findOne({email:req.body.email}, function(err, foundUser){
-          if(err){
-            console.log(err);
-          }else{
-
-            //Updating Transaction History Success
-            let updatedTransaction = [];
-
-            foundUser.transaction.forEach(function(transaction){
-              if(transaction.trnxId == req.body.trnxId){
-                const newTrnx = {
-                  type: transaction.type,
-                  from: transaction.from,
-                  amount: transaction.amount,
-                  status: 'Success',
-                  time:{
-                    date: transaction.time.date,
-                    month: transaction.time.month,
-                    year: transaction.time.year
-                  },
-                  trnxId: transaction.trnxId
-                }
-                updatedTransaction.push(newTrnx);
-              }else{
-                updatedTransaction.push(transaction);
-              }
-            });
-            //Updating Transaction array for User
-            User.updateOne({email:req.body.email}, {$set:{transaction:updatedTransaction}}, function(err){
-              if(err){
-                console.log(err);
-              }
-            });
-
-            //Update admin array
-            let updatedArray = [];
-
-            foundAdmin.withdrawal.forEach(function(transaction){
-              if(transaction.trnxId != req.body.trnxId){
-                updatedArray.push(transaction);
-              }
-            });
-            Admin.updateOne({email:process.env.ADMIN}, {$set:{withdrawal:updatedArray}}, function(err){
-              if(err){
-                console.log(err);
-              }
-            });
-
-          }
-        });
-      }
-    });
-    }else{
-
-      Admin.findOne({email:process.env.ADMIN}, function(err, foundAdmin){
-        if(err){
-          console.log(err);
-        }else{
-          User.findOne({email:req.body.email}, function(err, foundUser){
-            if(err){
-              console.log(err);
-            }else{
-              //Updating User balance
-
-              User.updateOne({email: req.body.email}, {$set:{earnings: {
-                currentPackage: foundUser.earnings.currentPackage,
-                totalPackage: foundUser.earnings.totalPackage,
-                totalIncome: foundUser.earnings.totalIncome,
-                directIncome: foundUser.earnings.directIncome,
-                levelIncome: foundUser.earnings.levelIncome,
-                royalIncome: foundUser.earnings.royalIncome,
-                teamAch: foundUser.earnings.teamAch,
-                franchiseAch: foundUser.earnings.franchiseAch,
-                availableBalance: foundUser.earnings.availableBalance + Math.floor(Number(req.body.amount))
-              }}},function(err){
-                if(err){
-                  console.log(err);
-                }
-              });
-
-              //Updating Transaction History Success
-              let updatedTransaction = [];
-
-              foundUser.transaction.forEach(function(transaction){
-                if(transaction.trnxId == req.body.trnxId){
-                  const newTrnx = {
-                    type: transaction.type,
-                    from: transaction.from,
-                    amount: transaction.amount,
-                    status: 'Failed',
-                    time:{
-                      date: transaction.time.date,
-                      month: transaction.time.month,
-                      year: transaction.time.year
-                    },
-                    trnxId: transaction.trnxId
-                  }
-                  updatedTransaction.push(newTrnx);
-                }else{
-                  updatedTransaction.push(transaction);
-                }
-              });
-              //Updating Transaction array for User
-              User.updateOne({email:req.body.email}, {$set:{transaction:updatedTransaction}}, function(err){
-                if(err){
-                  console.log(err);
-                }
-              });
-
-              //Update admin array
-              let updatedArray = [];
-
-              foundAdmin.withdrawal.forEach(function(transaction){
-                if(transaction.trnxId != req.body.trnxId){
-                  updatedArray.push(transaction);
-                }
-              });
-              Admin.updateOne({email:process.env.ADMIN}, {$set:{withdrawal:updatedArray}}, function(err){
-                if(err){
-                  console.log(err);
-                }
-              });
-
-            }
-          });
-        }
-      });
-    }
-    res.redirect('/admin');
-  }
-}); //wts
-
-
-app.post("/franchiseAch", function(req, res){
-  if(!req.session.admin){
-    res.redirect('/adminLogin');
-  }else{
-    Admin.findOne({email:process.env.ADMIN}, function(err, foundAdmin){
-      if(err){
-        console.log(err);
-      }else{
-        if(!foundAdmin){
-          res.redirect('/adminLogin');
-        }else{
-          User.findOne({email:req.body.email}, function(err, foundUser){
-           if(err){
-             console.log(err);
-           }else{
-             //Update User Franchise balance
-                      User.updateOne({email: req.body.email},
-                        {$set:
-                          {earnings:
-                            {
-                            currentPackage: foundUser.earnings.currentPackage,
-                            totalPackage: foundUser.earnings.totalPackage,
-                            totalIncome: foundUser.earnings.totalIncome + Number(req.body.amount),
-                            directIncome: foundUser.earnings.directIncome,
-                            levelIncome: foundUser.earnings.levelIncome,
-                            royalIncome: foundUser.earnings.royalIncome,
-                            teamAch: foundUser.earnings.teamAch,
-                            franchiseAch: foundUser.earnings.franchiseAch + Number(req.body.amount),
-                            availableBalance: foundUser.earnings.availableBalance + Number(req.body.amount)
-                            }}}, function(error){
-                        if(error){
-                          console.log(error);
-                        }else{
-                          //History and Transaction add up
-                          const trnxID = "T" + String(Math.floor(Math.random()*999999999));
-                          let history = foundUser.history;
-                          let transaction = foundUser.transaction;
-                          const newTransaction = {
-                            type: 'Credit',
-                            from: 'Club Earnings',
-                            amount: req.body.amount,
-                            status: 'Success',
-                            time:{
-                              date: date,
-                              month: month,
-                              year: year
-                            },
-                            trnxId: trnxID
-                          }
-                          transaction.push(newTransaction);
-
-                          User.updateOne({email: req.body.email}, {$set:{transaction:transaction}}, function(error){
-                            if(error){
-                              console.log(error);
-                            }
-                          });
-                        }
-                      });
-             res.redirect('/admin');
-           }
-          })
-        }
-      }
-    })
-  }
-});
 
 
 

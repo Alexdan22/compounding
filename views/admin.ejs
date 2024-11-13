@@ -107,12 +107,16 @@
                                         <div class="col-sm-12">
                                         <div class="statistics-details d-flex align-items-center justify-content-between">
                                             <div>
+                                              <a href="/totalUsers" target="_blank" rel="noopener noreferrer">
                                                 <p class="statistics-title">Total Users</p>
                                                 <h3 class="rate-percentage"><%=total%></h3>
+                                              </a>
                                             </div>
                                             <div>
+                                              <a href="/current" target="_blank" rel="noopener noreferrer">
                                                 <p class="statistics-title">Active Users</p>
                                                 <h3 class="rate-percentage text-success"><%=currentUsers%></h3>
+                                              </a>
                                             </div>
                                         </div>
                                         </div>
@@ -341,7 +345,86 @@
                                   </div>
                                   
                       <%  }    %>
+                                          
               
+                      <%  if(pendingLoan.length != 0){    %>
+                        <div class="row mt-4">
+                          <div class="col-lg-4">
+                            <div class="border-bottom text-center pb-4">
+                              <div class="mb-3 mt-3">
+                                <h5>Pending Loan - <%=pendingLoan.length%></h5>
+                              </div>
+                            </div>
+             
+                            
+                                  <%    pendingLoan.forEach(function(loan){    %>
+                                    <div class="py-4">
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Email
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.email%>
+                                        </span>
+                                      </p>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Name
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.username%>
+                                        </span>
+                                      </p>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Mobile number
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.mobile%>
+                                        </span>
+                                      </p>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          PAN number
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.pan%>
+                                        </span>
+                                      </p>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Aadhar number
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.aadhaar%>
+                                        </span>
+                                      </p>
+                                      <form class="forms-sample" action="/api/loanApproval" method="post">
+                                          <input type="text" hidden name="email" value="<%=loan.email%>">
+                                          <input type="text" hidden name="approval" value="true">
+                                          <input type="number" class="form-control" name="amount" value="<%=loan.amount%>">
+                                        </div>
+                                        <div>
+                                        <button name="approve" class="btn text-end btn-rounded btn-success" type="submit">Approve</button>
+                                        </div>
+                                      </form>
+                                      <form class="forms-sample" action="/api/loanApproval" method="post">
+                                        <div class="form-group row">
+                                          <input type="text" hidden name="email" value="<%=loan.email%>">
+                                          <input type="text" hidden name="approval" value="false">
+                                          <input type="number" hidden class="form-control" name="amount" value="<%=loan.amount%>">
+                                        </div>
+                                        <div>
+                                        <button name="reject" class="btn mb-2 text-start btn-rounded btn-danger" type="submit">Reject</button>
+                                        </div>
+                                      </form>
+                                    </div>
+                                    <hr>
+                                    <%  });    %>
+                                  </div>
+                                </div>
+                                
+                    <%  }    %>
                       </div>
                     </div>
                   </div>
@@ -422,10 +505,6 @@
                         </div>
                       </form>
                     </div>
-                    
-      
-
-      
               </div>
             </div>
           </div>
@@ -434,6 +513,52 @@
         </div>
   </div>
     </div>
+    <div class="col-12 mt-4">
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class=" text-center">
+                  
+                <div class="row mt-4">
+                  <div class="col-lg-4">
+                    <div class=" text-center">
+                      <div class="">
+                        <h5>Credit or Debit Loan</h5>
+                      </div>
+                    </div>
+                  <div class="py-4">
+                    <form class="forms-sample" action="/api/loanCredit" method="post">
+                      <div class="form-group row">
+                        <div class="col">
+                          <label>Enter Email</label>
+                          <input class="form-control" name="email" required type="text">
+                        </div>
+                        <div class="col">
+                          <label>Enter Amount</label>
+                          <input class="form-control" name="amount" required type="number">
+                        </div>
+                        <div class="form-group">
+                          <label for="type">Select type</label>
+                          <select class="form-select form-select-sm" name="type" id="type">
+                            <option value="credit">Credit amount</option>
+                            <option value="debit">Debit amount</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                      <button class="btn text-end btn-rounded btn-success" type="submit">Confirm</button>
+                      </div>
+                    </form>
+                  </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>
+</div>
+  </div>
     <div class="col-12 mt-4">
       <div class="card mt-4">
         <div class="card-body">

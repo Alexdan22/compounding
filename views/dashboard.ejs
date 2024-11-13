@@ -122,8 +122,12 @@
                           aria-selected="false">Earnings</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link border-0" id="more-tab" data-bs-toggle="tab" href="#more" role="tab"
+                        <a class="nav-link" id="more-tab" data-bs-toggle="tab" href="#more" role="tab"
                           aria-selected="false">Compound</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link border-0" id="loan-tab" data-bs-toggle="tab" href="#loan" role="tab"
+                          aria-selected="false">Get Loan</a>
                       </li>
                     </ul>
                   </div>
@@ -178,9 +182,7 @@
                                     <span class="float-start">
                                       Refferal Id
                                     </span>
-                                    <span class="float-end text-muted" id="userID">
-                                      <%=userID%>
-                                    </span>
+                                    <span class="float-end text-muted" id="userID"><%=userID%></span>
                                   </p>
                                   <p class="clearfix">
                                     <span class="float-start">
@@ -401,6 +403,222 @@
                             </div>
                           </div>
                     </div>
+                    <div class="tab-pane fade " id="loan" role="tabpanel" aria-labelledby="loan">
+                        <div class="row">
+                          <div class="col-sm-12">
+                            
+                            <%if(loan !== undefined && loan !== null){%>
+                              <%console.log(loan)%>
+                              <%if(loan.approval === 'Pending'){%>
+                                <h3 class="text-center">Apply Loan</h3>
+                                <br>
+                                <hr>
+                                <div class="text-center mb-1">
+                                <img  src="../assets/images/under-process.png" class="mb-2"  style="width: 25%; height: auto;" alt="">
+                                <p class="text-center">Loan application under review, Kindly check after few hours.</p>
+                                </div>
+                              <%}%>
+                              <%if(loan.approval === true){%>
+                                <h3 class="text-center">Loan Approved</h3>
+                                <br>
+                                <hr>
+                                <div class="row">
+                                  <div class="col-sm-12">
+                                    <div class="statistics-details d-flex align-items-center justify-content-between">
+                                        <div>
+                                          <p class="statistics-title">Availabel Loan amount</p>
+                                          <h3 class="rate-percentage text-success"><%=loan.amount%></h3>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <hr>
+                                    <div class="card">
+                                      <div class="card-body">
+                                        <h4 class="card-title">Loan Statement</h4>
+                                        <div class="row grid-margin">
+                                          <div class="col-12">
+                                          </div>
+                                        </div>
+                                        <div class="row">
+                                          <div class="col-12">
+                                            <div class="table-responsive">
+                                              <table id="order-listing" class="table">
+                                                <%    if(loan.transaction.length != 0){  %>
+                                                    
+                                                <thead>
+                                                    <tr class="bg-primary text-white">
+                                                      <th>Date</th>
+                                                      <th>Amount</th>
+                                                      <th>Type</th>
+                                                    </tr>
+                                                  </thead>
+                                                  
+                                                <tbody>
+                                                    <%   loan.transaction.forEach(function(payment){  %>
+                                                      <tr>
+                                                        <td><%=payment.time.date%>/<%=payment.time.month%>/<%=payment.time.year%></td>
+                                                        <td><%=payment.amount%></td>
+                                                        <%if(payment.type == 'Repayment'){%>
+                                                        <td>
+                                                          <label class="badge badge-success"><%=payment.type%></label>
+                                                        </td>
+                                                        <%}%>
+                                                        <%if(payment.type == 'Transferred'){%>
+                                                        <td>
+                                                          <label class="badge badge-danger"><%=payment.type%></label>
+                                                        </td>
+                                                        <%}%>
+                                                      </tr>
+                                                  <%     });  %>
+                                                  
+                                                </tbody>
+                                                  <%    }else{  %>
+                                                        <br><br>
+                                                        <div class="">
+                                                            <h6 class="mb-1 text-dark text-sm">No transactions found</h6>
+                                                        </div>
+                                                  <%    } %>
+                                              </table>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                  </div>
+                                </div>
+                              <%}%>
+                            <%}else{%>
+                            <h3 class="text-center">Apply Loan</h3>
+                            <br>
+                            <form id="example-form" action="#">
+                              <div>
+                                <h3>Basic Details</h3>
+                                <section>
+                                  <h3>Basic Details</h3>
+                                  <div class="form-group">
+                                    <label>Name*</label>
+                                    <input type="text" id="name" name="name" class="form-control" aria-describedby="emailHelp"
+                                      placeholder="Enter text">
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Mobile Number*</label>
+                                    <input type="number" id="mobile" name="mobile" class="form-control" placeholder="Mobile Number">
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Aadhaar Number*</label>
+                                    <input type="number" id="aadhaar" name="aadhaar" class="form-control" placeholder="Aadhaar Number">
+                                  </div>
+                                  <div class="form-group">
+                                    <label>PAN Number*</label>
+                                    <input type="text" id="pan" name="pan" class="form-control" placeholder="PAN Number">
+                                  </div>
+                                  <br>
+                                </section>
+                                <h3>Profession</h3>
+                                <section>
+                                  <h3>Profession</h3>
+                                  <div class="form-group">
+                                    <label>Job description*</label>
+                                    <input type="text" id="job" name="job" class="form-control" aria-describedby="jobDescription"
+                                      placeholder="Enter job description">
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="profession">Income type*</label>
+                                    <select class="form-select" id="profession">
+                                      <option>Salaried</option>
+                                      <option>Self Employed</option>
+                                      <option>Own business</option>
+                                      <option>Student</option>
+                                    </select>
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="profession">Monthly Income*</label>
+                                    <select class="form-select" id="income">
+                                      <option>Below 25,000</option>
+                                      <option>25,000 - 50,000</option>
+                                      <option>50,000 - 75,000</option>
+                                      <option> Above 75,000 </option>
+                                    </select>
+                                  </div>
+                                  <br>
+                                </section>
+                                <h3>Loan amount</h3>
+                                <section>
+                                  <h3>Loan amount</h3>
+                                  <div class="form-group">
+                                    <label>Required Loan amount*</label>
+                                    <input type="number" id="requiredAmount" name="amount" class="form-control" placeholder="Enter required loan amount">
+                                  </div>
+                                  <br>
+                                </section>
+                                <h3>Agreement</h3>
+                                <section>
+                                  <h3>Loan agreement</h3>
+                                  <div class="form-check">
+                                    <label class="form-check-label">
+                                      <input class="checkbox" id="checkbox" type="checkbox">
+                                      I agree with the Loan Terms and Conditions.
+                                    </label>
+                                  </div>
+                                  <br>
+                                </section>
+                              </div>
+                            </form>
+                            <%}%>
+
+                          </div>
+                          
+                        </div>
+                        <div class="card mt-5">
+                            <div class="card-body">
+                              <div class="row">
+                                <div class="col-lg-4">
+                                  <div class="border-bottom text-center pb-4">
+                                    <div class="mb-3">
+                                      <h3><%=name%></h3>
+                                    </div>
+                                    <p class="w-75 mx-auto mb-3"><%=email%> </p>
+                                  </div>
+                                  <div class="py-4">
+                                    <p class="clearfix">
+                                      <span class="float-start">
+                                        Status
+                                      </span>
+                                      <span class="float-end text-muted">
+                                        <%=status%>
+                                      </span>
+                                    </p>
+                                    <p class="clearfix">
+                                      <span class="float-start">
+                                        Mail
+                                      </span>
+                                      <span class="float-end text-muted">
+                                        <%=email%>
+                                      </span>
+                                    </p>
+                                    <p class="clearfix">
+                                      <span class="float-start">
+                                        Refferal Id
+                                      </span>
+                                      <span class="float-end text-muted">
+                                        <%=userID%>
+                                      </span>
+                                    </p>
+                                    <p class="clearfix">
+                                      <span class="float-start">
+                                        Refer and Earn
+                                      </span>
+                                      <span class="float-end text-info text-muted">
+                                        <a href="#" onclick="shareLink()"><i class="ti-clip"></i>Share</a> 
+                                      </span>
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                    </div>
                   </div>
                 </div>
                 
@@ -426,15 +644,15 @@
   <!-- plugins:js -->
    <script>
     const userID = document.getElementById('userID').innerHTML;
+    const url = 'https://coumpounding.site/register/' + userID;
     const shareLink = async()=>{
-      console.log(userID);
+      console.log(url);
       if (navigator.share) {
         try {
           await navigator.share({
             title: 'Check out this website!',
-            url: 'https://coumpounding.site/register/' + userID
+            url: url
           });
-          console.log('Thanks for sharing!');
         } catch (error) {
           console.error('Error sharing:', error);
         }
@@ -448,6 +666,8 @@
   <!-- endinject -->
   <!-- Plugin js for this page -->
   <script src="../../../assets/vendors/jquery-toast-plugin/jquery.toast.min.js"></script>
+  <script src="../../../assets/vendors/jquery-steps/jquery.steps.min.js"></script>
+  <script src="../../../assets/vendors/jquery-validation/jquery.validate.min.js"></script>
   <!-- End plugin js for this page -->
   <!-- inject:js -->
   <script src="../assets/js/off-canvas.js"></script>
@@ -462,6 +682,7 @@
   <!-- endinject -->
   <!-- Custom js for this page-->
   <script src="../assets/js/jquery.cookie.js" type="text/javascript"></script>
+  <script src="../assets/js/wizard.js"></script>
   <script src="../assets/js/dashboard.js"></script>
   <!-- <script src="../assets/js/Chart.roundedBarCharts.js"></script> -->
   <!-- End custom js for this page-->

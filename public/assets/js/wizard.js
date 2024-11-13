@@ -6,7 +6,7 @@
     bodyTag: "section",
     transitionEffect: "slideLeft",
     onFinished: function(event, currentIndex) {
-      alert("Submitted!");
+      checkEligibility();
     }
   });
   var validationForm = $("#example-validation-form");

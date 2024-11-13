@@ -15,7 +15,6 @@ const sdk = require('api')('@decentro/v1.0#pwx2s1ddlp6q9m73');
 const { DateTime } = require('luxon');
 const app = express();
 const QRCode = require('qrcode');
-const { log } = require('console');
 
 app.set('view engine', 'ejs');
 
@@ -91,6 +90,15 @@ const transactionSchema = new mongoose.Schema({
     year: String
   },
   trnxId: String
+});
+const loanTransactionSchema = new mongoose.Schema({
+  amount: Number,
+      time: {
+        date: String,
+        month: String,
+        year: String
+      },
+      type: String
 });
 const userSchema = new mongoose.Schema({
   username: {
@@ -190,11 +198,19 @@ const loanSchema = new mongoose.Schema({
   amount: Number,
   email: String,
   username: String,
-  approval: String,
+  approval: Boolean,
   aadhaar: Number,
   pan: String,
-  mobile: Number
+  mobile: Number,
+  eligibility: {
+    job: String,
+    profession: String,
+    income: String,
+    loanAmount: Number
+  },
+  transaction: [loanTransactionSchema]
 });
+
 const qrDataSchema = new mongoose.Schema({ text: String });
 
 
@@ -244,6 +260,8 @@ app.get("/dashboard", async (req, res) => {
 
   try {
     const foundUser = await User.findOne({ email: req.session.user.email });
+    const foundLoan = await Loan.findOne({email: req.session.user.email});
+    
     if (!foundUser) {
       return res.redirect("/");
     }
@@ -284,6 +302,7 @@ app.get("/dashboard", async (req, res) => {
       availableBalance,
       alert,
       compound,
+      loan: foundLoan,
       current: compound.active + compound.interest,
       status
     });
@@ -321,11 +340,7 @@ app.get("/profile", async (req, res) =>{
       res.render('profile', {username, email, userID,status, sponsorID});
     }else{
       //With registered sponsor ID
-      const {
-        sponsorName = username
-      } = foundSponsor;
-
-        res.render('profile', {username, email, userID,status,sponsorName, sponsorID});
+        res.render('profile', {username, email, userID,status,sponsorName:foundSponsor.username, sponsorID});
     }
 
   } catch (err) {
@@ -333,14 +348,6 @@ app.get("/profile", async (req, res) =>{
     res.status(500).send("An error occurred. Please try again later.");
   }
 
-});
-
-app.get("/package", function(req, res){
-  if(!req.session.user){
-    res.status(200).send({redirect:true});
-  }else{
-    res.status(200).send({success:'true'});
-  }
 });
 
 app.get("/paymentGateway", async function(req, res) {
@@ -399,7 +406,6 @@ app.get("/withdrawal", async function(req, res) {
   
 });
 
-
 app.get('/transaction', async (req, res) => {
   if (!req.session.user) {
     return res.redirect("/");
@@ -431,10 +437,12 @@ app.get("/admin", async function(req, res) {
     try {
       const foundAdmin = await Admin.findOne({ email: process.env.ADMIN });
       const foundUsers = await User.find({});
+      const foundLoan = await Loan.find({});
       
       const total = foundUsers.length;
       const current = foundUsers.filter(activeUsers => activeUsers.status === 'Active');
       const review = foundUsers.filter(reviewRequired => reviewRequired.status === 'Review');
+      const pendingLoan = foundLoan.filter(pending => pending.approval === 'Pending')
       const currentUsers = current.length;
 
       
@@ -443,6 +451,7 @@ app.get("/admin", async function(req, res) {
         currentUsers,
         pendingApproval: foundAdmin.payment.length,
         pendingWithdraw: foundAdmin.withdrawal.length,
+        pendingLoan,
         payment: foundAdmin.payment,
         review,
         withdrawal: foundAdmin.withdrawal
@@ -503,41 +512,42 @@ app.get("/teamLevel", async (req, res) =>{
       console.log(err)
     }
   }
-})
+});
 
-// app.get("/adminUpdate", async function(req, res){
-//   try{
-//     const newAdmin = new Admin({
-//       email:process.env.ADMIN,
-//       payment:[],
-//       withdrawal:[]
-//     });
-//     newAdmin.save();
-//   }catch(err){
-//     console.log(err);
-//   }
-// });
-
-
-app.get("/currentInvestors", function(req, res){
+app.get("/current", async function(req, res){
   if(!req.session.admin){
     res.redirect('/adminLogin');
   }else{
-    User.find({}, function(err, foundUser){
-      if(err){
-        console.log(err);
-      }else{
-        let currentInvestor = [];
+    try {
+      const foundUser = await User.find({});
+      let current = [];
         foundUser.forEach(function(user){
-          if(user.earnings.currentInvestment != 0){
-            currentInvestor.push(user);
+          if(user.status == 'Active'){
+            current.push(user);
           }
         });
-        res.render('investors', {
-          currentInvestor
+        res.render('users', {
+          current
         });
-      }
-    })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+});
+
+app.get("/totalUsers", async function(req, res){
+  if(!req.session.admin){
+    res.redirect('/adminLogin');
+  }else{
+    try {
+      const foundUser = await User.find({});
+
+      res.render('users', {
+        current: foundUser
+      });
+    } catch (err) {
+      console.log(err)
+    }
   }
 });
 
@@ -747,20 +757,6 @@ app.get('/downline', async (req, res) => {
     }
   }
 
-});
-
-app.get('/activeUsers', function(req, res){
-  if(!req.session.admin){
-    res.redirect('/adminLogin');
-  }else{
-    User.find({}, function(err, foundUsers){
-      if(err){
-        console.log(err);
-      }else{
-        res.render('activeUsers', {foundUsers});
-      }
-    })
-  }
 });
 
 app.get('/generateQR', async (req, res) => {
@@ -1077,9 +1073,9 @@ app.post('/transferToWallet', async (req, res) =>{
           await User.updateOne({ email: foundUser.email }, {
             $set: {
               earnings: {
-                compoundIncome: foundUser.earnings.compoundIncome,
+                compoundIncome: foundUser.earnings.compoundIncome + Number(req.body.amount),
                 weeklySalary: foundUser.earnings.weeklySalary,
-                totalIncome: foundUser.earnings.totalIncome,
+                totalIncome: foundUser.earnings.totalIncome + Number(req.body.amount),
                 directIncome: foundUser.earnings.directIncome,
                 levelIncome: foundUser.earnings.levelIncome,
                 teamBuilder: foundUser.earnings.teamBuilder,
@@ -1867,6 +1863,165 @@ app.post("/api/creditWithdrawal", async function(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/api/check-eligibility", async (req, res)=>{
+  if(!req.session.user){
+    res.redirect('/');
+  }else{
+    try {
+      const foundUser = await User.findOne({email:req.session.user.email});
+
+      //Save the User details to loan database 
+      const {
+        name,
+        mobile,
+        aadhaar,
+        pan,
+        job,
+        profession,
+        income,
+        amount
+      } = req.body;
+
+      const aadhaarUser = await Loan.findOne({aadhaar:aadhaar});
+      const panUser = await Loan.findOne({pan:pan});
+      const mobileUser = await Loan.findOne({mobile:mobile});
+      
+
+      if(aadhaarUser || panUser || mobileUser ){
+        //Application submitted already
+        const alertType = "warning";
+        const alert = "true";
+        const loaderBg = '#57c7d4';
+        const message = "The application already exist.";
+        res.status(200).send({ alertType, alert, message, loaderBg });
+      }else{
+        const newLoan = new Loan ({
+          email: foundUser.email,
+          username: name,
+          approval: 'Pending',
+          aadhaar: aadhaar,
+          pan: pan,
+          mobile: mobile,
+          eligibility:{
+            job: job,
+            profession: profession,
+            income: income,
+            loanAmount: amount
+          }
+        });
+  
+        newLoan.save();
+  
+        const alertType = "success";
+        const alert = "true";
+        const loaderBg = '#f96868';
+        const message = "Loan request submitted successfully.";
+        res.status(200).send({ alertType, alert, message, loaderBg });
+      }
+
+    } catch (err) {
+      console.log();
+    }
+  }
+});
+
+app.post('/api/loanApproval', async (req, res)=>{
+  if(!req.session.admin){
+    res.redirect('/adminLogin');
+  }else{
+    try {
+      const {
+        email,
+        approval,
+        amount
+      } = req.body;
+
+      const foundAdmin = await Admin.findOne({email:process.env.ADMIN});
+      const foundLoan = await Loan.findOne({email:email});
+      const foundUser = await User.findOne({email:email});
+      if (approval == 'true') {
+
+        foundLoan.approval = 'true';
+        foundLoan.amount = amount;
+        await foundLoan.save();
+
+
+        res.redirect('/admin');
+
+      } else {
+
+        foundLoan.approval = 'false';
+        foundLoan.email = `${foundLoan.email} - Rejected`
+        await foundLoan.save();
+
+
+        res.redirect('/admin');
+      }
+    } catch (err) {
+      console.log(err);
+      
+    }
+  }
+});
+
+app.post('/api/loanCredit', async (req, res) => {
+  const timeZone = 'Asia/Kolkata';
+  const currentTimeInTimeZone = DateTime.now().setZone(timeZone);
+
+  const year = currentTimeInTimeZone.year;
+  const month = currentTimeInTimeZone.month;
+  const date = currentTimeInTimeZone.day;
+
+  if (!req.session.admin) {
+    res.redirect('/adminLogin');
+  } else {
+    try {
+      
+      const foundLoan = await Loan.findOne({ email:req.body.email });
+      if (foundLoan) {
+
+        if (req.body.type === 'credit') {
+          let newValue = Number(foundLoan.amount + Number(req.body.amount));
+          foundLoan.amount = newValue;
+
+          let newTransaction = {
+            amount: Number(req.body.amount),
+            time: {
+              date: date,
+              month: month,
+              year: year
+            },
+            type: "Repayment"
+          };
+          foundLoan.transaction.push(newTransaction);
+
+          await foundLoan.save();
+        } else if (req.body.type === 'debit') {
+          let newValue = Number(foundLoan.amount - Number(req.body.amount));
+          foundLoan.amount = newValue;
+
+          let newTransaction = {
+            amount: Number(req.body.amount),
+            time: {
+              date: date,
+              month: month,
+              year: year
+            },
+            type: "Transferred"
+          };
+          foundLoan.transaction.push(newTransaction);
+
+          await foundLoan.save();
+        }
+      } else {
+      }
+    } catch (err) {
+      console.error('Error saving loan:', err);
+    }
+    res.redirect('/admin');
   }
 });
 

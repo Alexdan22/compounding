@@ -278,6 +278,91 @@ const transferToWallet = function(){
     },
   });
 }
+
+
+//Withdraw button handler
+const checkEligibility = function(){
+  amount = document.getElementById('requiredAmount').value;
+  username = document.getElementById('name').value;
+  aadhaar = document.getElementById('aadhaar').value;
+  mobile = document.getElementById('mobile').value;
+  pan = document.getElementById('pan').value;
+  job = document.getElementById('job').value;
+  profession = document.getElementById('profession').value;
+  income = document.getElementById('income').value;
+  checkbox = document.getElementById('checkbox');
+  
+
+  if (amount == "" || username == "" || aadhaar == "" || mobile == "" || pan == "" || job == "" || profession == "" || income == "") {
+    'use strict';
+    resetToastPosition();
+    $.toast({
+      heading: '',
+      text: 'Kindly fill in all the details in their provided area.',
+      showHideTransition: 'slide',
+      icon: 'warning',
+      loaderBg: '#f96868',
+      position: 'top-center'
+    });
+  }else{
+
+    if(checkbox.checked){
+
+      $.ajax({
+        url: '/api/check-eligibility',
+        // dataType: "jsonp",
+        data: {
+          amount: amount,
+          name: username,
+          aadhaar: aadhaar,
+          pan: pan,
+          mobile: mobile,
+          job: job,
+          income: income,
+          profession: profession,
+        },
+        type: 'POST',
+        success: function (data) {
+          if( data.redirect == undefined){
+            if(data.alert == 'true'){
+              'use strict';
+                resetToastPosition();
+                $.toast({
+                  heading: data.alertType,
+                  text: data.message,
+                  showHideTransition: 'slide',
+                  icon: data.alertType,
+                  loaderBg: data.loaderBg,
+                  position: 'top-center'
+                });
+            }
+            if(data.alertType == 'success'){
+              dashboard2000();
+            }
+            
+          }else{
+            login2000();
+          }
+        },
+        error: function (status, error) {
+            console.log('Error: ' + error.message);
+        },
+      });
+      
+    }else{
+       'use strict';
+      resetToastPosition();
+      $.toast({
+        heading: '',
+        text: 'Kindly agree to the terms and conditions',
+        showHideTransition: 'slide',
+        icon: 'error',
+        loaderBg: '#f2a654',
+        position: 'top-center'
+      });
+    }
+  }
+}
     
 
 

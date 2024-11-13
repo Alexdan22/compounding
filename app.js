@@ -198,7 +198,7 @@ const loanSchema = new mongoose.Schema({
   amount: Number,
   email: String,
   username: String,
-  approval: Boolean,
+  approval: String,
   aadhaar: Number,
   pan: String,
   mobile: Number,

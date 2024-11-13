@@ -253,6 +253,16 @@ app.get("/register", function(req, res){
   }
 });
 
+app.get("/register/:sponsorID", function(req, res){
+
+  req.session.sponsorID = req.params.sponsorID;
+
+  const alert = "false";
+  const sponsor = 'true';
+  const sponsorID = req.session.sponsorID;
+  res.redirect('/register');
+});
+
 app.get("/dashboard", async (req, res) => {
   if (!req.session.user) {
     return res.redirect("/");
@@ -699,57 +709,71 @@ app.get('/downline', async (req, res) => {
   }else{
     try {
       const foundUser = await User.findOne({ email: req.session.user.email });
-      const totalDownline = [];
-      const direct = await User.find({sponsorID:foundUser.userID});
-      Array.prototype.push.apply(totalDownline, direct);
-
-      const level1 = [];
-      const level2 = [];
-      const level3 = [];
-      const level4 = [];
-      const level5 = [];
-
-      direct.forEach(async(user)=>{
-       const foundLevel1 = await User.find({sponsorID:user.userID});
-
-       Array.prototype.push.apply(level1, foundLevel1);
-       Array.prototype.push.apply(totalDownline, foundLevel1);
-      });
-
-      level1.forEach(async(user)=>{
-        const foundLevel2 = await User.find({sponsorID:user.userID});
- 
-        Array.prototype.push.apply(level2, foundLevel2);
-        Array.prototype.push.apply(totalDownline, foundLevel2);
-       });
-
-       level2.forEach(async(user)=>{
-        const foundLevel3 = await User.find({sponsorID:user.userID});
- 
-        Array.prototype.push.apply(level3, foundLevel3);
-        Array.prototype.push.apply(totalDownline, foundLevel3);
-       });
-
-       level3.forEach(async(user)=>{
-         const foundLevel4 = await User.find({sponsorID:user.userID});
-  
-         Array.prototype.push.apply(level4, foundLevel4);
-         Array.prototype.push.apply(totalDownline, foundLevel4);
-        });
- 
-        level4.forEach(async(user)=>{
-         const foundLevel5 = await User.find({sponsorID:user.userID});
-  
-         Array.prototype.push.apply(level5, foundLevel5);
-         Array.prototype.push.apply(totalDownline, foundLevel5);
-        });
+      
+      const foundDirect = await User.find({sponsorID: foundUser.userID});
+      let level1Downline = [];
+      let level2Downline = [];
+      let level3Downline = [];
+      let level4Downline = [];
+      let level5Downline = [];
+      let level6Downline = [];
+      let totalDownline =[];
+      
+      // Helper function to get downline members
+      async function getDownline(sponsorID) {
+        return await User.find({ sponsorID });
+      }
+      
+      // Helper function to handle downline level
+      async function handleDownline(currentLevel) {
+        const nextLevel = [];
+        await Promise.all(currentLevel.map(async (user) => {
+          const downline = await getDownline(user.userID);
+          nextLevel.push(...downline);
+        }));
+        return nextLevel;
+      }
+      
+      async function calculateDownlines() {
+        // Level 1 Downline
+        level1Downline = await handleDownline(foundDirect);
+      
+        // Level 2 Downline
+        level2Downline = await handleDownline(level1Downline);
+      
+        // Level 3 Downline
+        level3Downline = await handleDownline(level2Downline);
+      
+        // Level 4 Downline
+        level4Downline = await handleDownline(level3Downline);
+      
+        // Level 5 Downline
+        level5Downline = await handleDownline(level4Downline);
         
-        const activeDownline = totalDownline.filter(activeUsers => activeUsers.status === 'Active');
+        // Level 6 Downline
+        level6Downline = await handleDownline(level5Downline);
+      
+      // Combine all downlines into totalDownline 
+        totalDownline = [ 
+          ...foundDirect, 
+          ...level1Downline, 
+          ...level2Downline, 
+          ...level3Downline, 
+          ...level4Downline, 
+          ...level5Downline, 
+          ...level6Downline 
+        ];
+        return totalDownline;
+      }
+      
+      // Call the function to calculate downlines
+      
+      totalDownline = await calculateDownlines();
+      const totalActive = totalDownline.filter(activeUsers => activeUsers.status === 'Active');
+        
         const downlines = await User.find({ sponsorID: foundUser.userID });
-        const total = downlines.length;
         const current = downlines.filter(activeUsers => activeUsers.status === 'Active');
-        const currentUsers = current.length;
-        res.status(200).send({ downlines, total, currentUsers, totalDownline, activeDownline });
+        res.status(200).send({ downlines, total:totalDownline.length, active:totalActive.length });
   
     } catch (err) {
       console.error(err);
@@ -1362,7 +1386,7 @@ app.post("/api/withdrawal", async function(req, res) {
   
       const newValue = foundUser.earnings.availableBalance - Number(req.body.amount);
   
-      if (req.body.amount < 199) {
+      if (req.body.amount < 149) {
         return res.status(200).send({
           alertType : "warning",
           alert : "true",
@@ -1373,9 +1397,7 @@ app.post("/api/withdrawal", async function(req, res) {
           sponsorID: foundUser.sponsorID,
           availableBalance: foundUser.earnings.availableBalance
         });
-      }
-  
-      if (foundUser.earnings.availableBalance < req.body.amount) {
+      }else if (foundUser.earnings.availableBalance < req.body.amount) {
         return res.status(200).send({
           alertType : "warning",
           alert : "true",
@@ -1386,9 +1408,7 @@ app.post("/api/withdrawal", async function(req, res) {
           sponsorID: foundUser.sponsorID,
           availableBalance: foundUser.earnings.availableBalance
         });
-      }
-  
-      if (!foundUser.bankDetails) {
+      }else if (!foundUser.bankDetails) {
         return res.status(200).send({
           alertType : "warning",
           alert : "true",

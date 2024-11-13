@@ -53,19 +53,19 @@
                     <input type="password" name="confirmPassword" class="form-control form-control-lg" id="confirmPassword"
                       placeholder="Re-enter Password">
                   </div>
-                  <%  if(sponsor == 'true'){  %>
+                  <% if(sponsor === 'true' && sponsorID) { %>
                   <div class="form-group">
                     <input type="text" name="sponsorID" class="form-control form-control-lg" id="sponsorID"
                       placeholder="Enter Sponsor ID" value="<%=sponsorID%>">
                   </div>
 
-                  <%  }else{  %>
+                  <%}else{%>
                   <div class="form-group">
                     <input type="text" name="sponsorID" class="form-control form-control-lg" id="sponsorID"
                       placeholder="Enter Sponsor ID">
                   </div>
 
-                  <%  }  %>
+                  <%}%>
                   <div class="mb-4">
                     <div class="form-check">
                       <label class="form-check-label text-muted">

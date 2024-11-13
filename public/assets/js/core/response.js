@@ -109,11 +109,11 @@ const team = function(){
                                         <div class="statistics-details d-flex align-items-center justify-content-between">
                                             <div>
                                                 <p class="statistics-title">Total Downlines</p>
-                                                <h3 class="rate-percentage text-center">`+data.totalDownline.length+`</h3>
+                                                <h3 class="rate-percentage text-center">`+data.total+`</h3>
                                             </div>
                                             <div class="text-end">
                                                 <p class="statistics-title">Active Downlines</p>
-                                                <h3 class="rate-percentage text-center text-success">`+data.activeDownline.length+`</h3>
+                                                <h3 class="rate-percentage text-center text-success">`+data.active+`</h3>
                                             </div>
                                         </div>
                                         </div>

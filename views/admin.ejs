@@ -302,6 +302,14 @@
                                         </p>
                                         <p class="clearfix">
                                           <span class="float-start">
+                                            Amount
+                                          </span>
+                                          <span class="float-end text-muted">
+                                            <%=invest.amount%>
+                                          </span>
+                                        </p>
+                                        <p class="clearfix">
+                                          <span class="float-start">
                                             Transaction ID
                                           </span>
                                           <span class="float-end text-muted">
@@ -400,6 +408,39 @@
                                           <%=loan.aadhaar%>
                                         </span>
                                       </p>
+                                      <hr>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Job description
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.eligibility.job%>
+                                        </span>
+                                      </p>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Monthly Income
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.eligibility.income%>
+                                        </span>
+                                      </p>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Profession
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.eligibility.profession%>
+                                        </span>
+                                      </p>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Required amount
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=loan.eligibility.loanAmount%>
+                                        </span>
+                                      </p>
                                       <form class="forms-sample" action="/api/loanApproval" method="post">
                                           <input type="text" hidden name="email" value="<%=loan.email%>">
                                           <input type="text" hidden name="approval" value="true">
@@ -445,6 +486,39 @@
                           <div class=" text-center">
                             <div class="">
                               <h5>User interface</h5>
+                              <button type="button" class="btn float-end btn-danger btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal-3">Unset Bank details<i
+                          class="ti-arrow-circle-right ms-1"></i></button>
+                          
+                            <div class="modal fade" id="exampleModal-3" tabindex="-1" role="dialog"
+                              aria-labelledby="exampleModalLabel-3" aria-hidden="true">
+                              <div class="modal-dialog modal-sm" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel-3">Unset bank details</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <form action="/unsetBankDetails" method="post">
+
+                                      <div class="col">
+                                        <label>Enter Email</label>
+                                        <input class="form-control" name="email" required type="text">
+                                      </div>
+                                      <div class="col">
+                                        <label>Enter 'CONFIRM'</label>
+                                        <input class="form-control" name="validation" required type="text">
+                                      </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                    </form>
+                                </div>
+                              </div>
+                            </div>
                             </div>
                           </div>
                         <div class="py-4">

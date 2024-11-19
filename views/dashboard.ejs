@@ -152,6 +152,10 @@
                           </div>
                         </div>
                       </div>
+                      <br><br><br>
+                      <div class="text-center">
+                        <a href="https://wa.me/+447418342113" target="_blank" class="btn btn-primary text-white texy-center btn-lg btn-block">Contact Us</a>
+                      </div>
                       <div class="card mt-5">
                           <div class="card-body">
                             <div class="row">
@@ -171,6 +175,16 @@
                                       <%=status%>
                                     </span>
                                   </p>
+                                  <%if(status == 'Active'){%>
+                                    <p class="clearfix">
+                                      <span class="float-start">
+                                        Active compound
+                                      </span>
+                                      <span class="float-end text-muted">
+                                        <%=compound.active%>
+                                      </span>
+                                    </p>
+                                  <%}%>
                                   <p class="clearfix">
                                     <span class="float-start">
                                       Mail
@@ -241,6 +255,10 @@
                             </div>
                           </div>
                         </div>
+                        <br><br><br>
+                        <div class="text-center">
+                          <a href="https://wa.me/+447418342113" target="_blank" class="btn btn-primary text-white texy-center btn-lg btn-block">Contact Us</a>
+                        </div>
                         <div class="card mt-5">
                             <div class="card-body">
                               <div class="row">
@@ -260,6 +278,16 @@
                                         <%=status%>
                                       </span>
                                     </p>
+                                    <%if(status == 'Active'){%>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Active compound
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=compound.active%>
+                                        </span>
+                                      </p>
+                                    <%}%>
                                     <p class="clearfix">
                                       <span class="float-start">
                                         Mail
@@ -298,6 +326,14 @@
                                   <p class="statistics-title">Active Compounding</p>
                                   <h3 class="text-center rate-percentage text-success"><%=current%></h3>
                                 </div>
+                                <%if(compound.active !== 0){%>
+                                  <%const interestRate = compound.percentage*100%>
+                                  <div>
+                                    <p class="statistics-title">Interest rate</p>
+                                    <h3 class="text-center rate-percentage"><%=interestRate%>%</h3>
+                                  </div>
+
+                                <%}%>
                                 <div>
                                   <p class="statistics-title">Days left</p>
                                   <h3 class="text-center rate-percentage"><%=compound.days%></h3>
@@ -355,6 +391,10 @@
 
                           
                         </div>
+                        <br><br><br>
+                        <div class="text-center">
+                          <a href="https://wa.me/+447418342113" target="_blank" class="btn btn-primary text-white texy-center btn-lg btn-block">Contact Us</a>
+                        </div>
                         <div class="card mt-5">
                             <div class="card-body">
                               <div class="row">
@@ -374,6 +414,16 @@
                                         <%=status%>
                                       </span>
                                     </p>
+                                    <%if(status == 'Active'){%>
+                                      <p class="clearfix">
+                                        <span class="float-start">
+                                          Active compound
+                                        </span>
+                                        <span class="float-end text-muted">
+                                          <%=compound.active%>
+                                        </span>
+                                      </p>
+                                    <%}%>
                                     <p class="clearfix">
                                       <span class="float-start">
                                         Mail
@@ -409,7 +459,6 @@
                           <div class="col-sm-12">
                             
                             <%if(loan !== undefined && loan !== null){%>
-                              <%console.log(loan)%>
                               <%if(loan.approval === 'Pending'){%>
                                 <h3 class="text-center">Apply Loan</h3>
                                 <br>
@@ -571,6 +620,10 @@
                           </div>
                           
                         </div>
+                        <br><br><br>
+                        <div class="text-center">
+                          <a href="https://wa.me/+447418342113" target="_blank" class="btn btn-primary text-white texy-center btn-lg btn-block">Contact Us</a>
+                        </div>
                         <div class="card mt-5">
                             <div class="card-body">
                               <div class="row">
@@ -647,7 +700,6 @@
     const userID = document.getElementById('userID').innerHTML;
     const url = '/register/' + userID;
     const shareLink = async()=>{
-      console.log(url);
       if (navigator.share) {
         try {
           await navigator.share({

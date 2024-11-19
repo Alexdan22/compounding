@@ -958,34 +958,6 @@ app.post('/userPanel', async (req, res) => {
   }
 });
 
-app.post('/unsetBankDetails', function(req, res){
-  if(!req.session.admin){
-    res.redirect('/adminLogin');
-  }else{
-    User.findOne({email:req.body.email}, function(err, foundUser){
-      if(err){
-        console.log(err);
-      }else{
-        if(!foundUser){
-          res.redirect('/admin');
-        }else{
-          if(req.body.validation == "CONFIRM"){
-            User.updateOne({email:req.body.email}, {$unset:{bankDetails:''}}, function(err){
-              if(err){
-                console.log(err);
-              }else{
-                res.redirect('/admin');
-              }
-            });
-          }else{
-            res.redirect('/admin');
-          }
-        }
-      }
-    });
-  }
-});
-
 app.post('/api/login', async (req, res) => {
   try {
     const foundUser = await User.findOne({ email: req.body.email });
@@ -2155,6 +2127,28 @@ app.post('/api/loanCredit', async (req, res) => {
       console.error('Error saving loan:', err);
     }
     res.redirect('/admin');
+  }
+});
+
+app.post('/unsetBankDetails', async (req, res) => {
+  if (!req.session.admin) {
+    res.redirect('/adminLogin');
+  } else {
+    try {
+      const foundUser = await User.findOne({ email: req.body.email });
+      if (!foundUser) {
+        return res.redirect('/admin');
+      }
+
+      if (req.body.validation === "CONFIRM") {
+        await User.updateOne({ email: req.body.email }, { $unset: { bankDetails: 1 } });
+      }
+
+      res.redirect('/admin');
+    } catch (err) {
+      console.error(err);
+      res.redirect('/admin');
+    }
   }
 });
 

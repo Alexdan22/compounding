@@ -128,6 +128,25 @@
                               <%=email%>
                             </span>
                           </p>
+                          <%if(mobile == 0){%>
+                            <p class="clearfix">
+                              <span class="float-start">
+                                Mobile number
+                              </span>
+                              <span class="float-end text-muted">
+                                Not provided
+                              </span>
+                            </p>
+                          <%}else{%>
+                            <p class="clearfix">
+                              <span class="float-start">
+                                Mobile number
+                              </span>
+                              <span class="float-end text-muted">
+                                <%=mobile%>
+                              </span>
+                            </p>
+                          <%}%>
                           <p class="clearfix">
                             <span class="float-start">
                               Status

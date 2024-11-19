@@ -44,11 +44,12 @@ const registerUser = function(){
     username = document.getElementById('username').value;
     email = document.getElementById('email').value;
     password = document.getElementById('password').value;
+    mobile = document.getElementById('mobile').value;
     confirmPassword = document.getElementById('confirmPassword').value;
     sponsorID = document.getElementById('sponsorID').value;
     checkbox = document.getElementById('checkbox');
   
-    if (email == "" || password == "" || confirmPassword == "" || sponsorID == "" || username == "") {
+    if (email == "" || password == "" || confirmPassword == "" || sponsorID == "" || username == ""|| mobile == "") {
         'use strict';
         resetToastPosition();
         $.toast({
@@ -68,6 +69,7 @@ const registerUser = function(){
             email: email,
             password: password,
             username: username,
+            mobile: mobile,
             confirmPassword: confirmPassword,
             sponsorID: sponsorID
           },

@@ -116,6 +116,11 @@ const userSchema = new mongoose.Schema({
     required: true
   },
 
+  mobile:{
+    type:Number,
+    required: true
+  },
+
   sponsorID: {
     type: String,
     required: true
@@ -225,6 +230,104 @@ const Payment = new mongoose.model("Payment", paymentSchema);
 const Data = new mongoose.model('Data', qrDataSchema);
 
 const Loan = new mongoose.model('Loan', loanSchema);
+
+
+//Automated Functions
+var job = schedule.scheduleJob('0 1 * * *', async(scheduledTime) => {
+
+  const timeZone = 'Asia/Kolkata';
+  const currentTimeInTimeZone = DateTime.now().setZone(timeZone);
+
+
+  let year = currentTimeInTimeZone.year;
+  let month = currentTimeInTimeZone.month;
+  let date = currentTimeInTimeZone.day;
+  let hour = currentTimeInTimeZone.hour;
+  let minutes = currentTimeInTimeZone.minute;
+    try {
+      
+      const trnxID = String(Math.floor(Math.random()*999999999));
+      const foundUsers = await User.find({});
+
+      foundUsers.forEach(async (user) => {
+        if (user.status === 'Active') {
+          if (user.compound.days === 1) {
+            // Handle to credit the compounding interest and reset the compound active
+
+            const todaysInterest = Math.floor((user.compound.active + user.compound.interest) * user.compound.percentage);
+            console.log(todaysInterest, user.compound.percentage)
+            const lastDayInterest = Math.floor(todaysInterest +user.compound.interest);
+            const updatedCompound = {
+              active: 0,
+              total: user.compound.total,
+              days: 0,
+              interest: 0,
+              percentage: 0
+            };
+
+            await User.updateOne({ email: user.email }, { $set: { compound: updatedCompound } });
+
+            await User.updateOne({ email: user.email }, { $set: { status: 'Idle' } });
+
+            await User.updateOne({ email: user.email }, {
+              $set: {
+                earnings: {
+                  compoundIncome: user.earnings.compoundIncome + lastDayInterest,
+                  weeklySalary: user.earnings.weeklySalary,
+                  totalIncome: user.earnings.totalIncome + lastDayInterest,
+                  directIncome: user.earnings.directIncome,
+                  levelIncome: user.earnings.levelIncome,
+                  teamBuilder: user.earnings.teamBuilder,
+                  addition: user.earnings.addition,
+                  addition2: user.earnings.addition2,
+                  availableBalance: user.earnings.availableBalance + lastDayInterest
+                }
+              }
+            });
+
+            const transaction = user.transaction;
+
+              const newTrnx = {
+                type: 'Credit',
+                from: 'Compound',
+                amount: lastDayInterest,
+                status: 'success',
+                trnxId: trnxID,
+                time: {
+                  date: date,
+                  month: month,
+                  year: year
+                }
+              };
+
+              transaction.push(newTrnx);
+
+
+              await User.updateOne({ email: user.email }, { $set: { transaction: transaction } });
+
+          } else {
+            // Handle for normal compounding
+            const todaysInterest = Math.floor((user.compound.active + user.compound.interest) * user.compound.percentage);
+            console.log(todaysInterest, user.compound.percentage)
+            const updatedCompound = {
+              active: user.compound.active,
+              total: user.compound.total,
+              days: user.compound.days - 1,
+              interest: user.compound.interest + todaysInterest,
+              percentage: user.compound.percentage
+            };
+
+            await User.updateOne({ email: user.email }, { $set: { compound: updatedCompound } });
+          }
+        }
+      });
+
+      res.redirect('/admin');
+    } catch (err) {
+      console.error(err);
+    }
+});
+
 
 //ROUTES
 app.get("/", function(req, res){
@@ -337,7 +440,8 @@ app.get("/profile", async (req, res) =>{
       email,
       status,
       userID,
-      sponsorID
+      sponsorID,
+      mobile
     } = foundUser;
 
 
@@ -347,10 +451,10 @@ app.get("/profile", async (req, res) =>{
     if(!foundSponsor){
       //With no Registered Sponsor ID
       
-      res.render('profile', {username, email, userID,status, sponsorID});
+      res.render('profile', {username, email, userID,status, mobile, sponsorID});
     }else{
       //With registered sponsor ID
-        res.render('profile', {username, email, userID,status,sponsorName:foundSponsor.username, sponsorID});
+        res.render('profile', {username, email, userID,status, mobile,sponsorName:foundSponsor.username, sponsorID});
     }
 
   } catch (err) {
@@ -936,6 +1040,7 @@ app.post('/api/register', async (req, res) => {
     email: req.body.email,
     password: req.body.password,
     sponsorID: req.body.sponsorID,
+    mobile: req.body.mobile,
     userID: userID,
     status: "Idle",
     earnings: {
@@ -975,22 +1080,30 @@ app.post('/api/register', async (req, res) => {
       const message = "The Email is already registered, Kindly login";
       const loaderBg = '#57c7d4';
       return res.status(200).send({ alertType, alert, message, loaderBg });
-    }
 
-    if (req.body.password !== req.body.confirmPassword) {
+    }else if (req.body.password !== req.body.confirmPassword) {
       const alertType = "warning";
       const alert = "true";
       const message = "Password did not match";
       const loaderBg = '#57c7d4';
       return res.status(200).send({ alertType, alert, message, loaderBg });
-    }
 
-    await newUser.save();
-    const alertType = "success";
-    const alert = "true";
-    const loaderBg = '#f96868';
-    const message = "Successfully created your Account";
-    res.status(200).send({ alertType, alert, message, loaderBg });
+    }else if(String(req.body.mobile).length != 10){
+      const alertType = "warning";
+      const alert = "true";
+      const message = "Invalid Mobile number";
+      const loaderBg = '#57c7d4';
+      return res.status(200).send({ alertType, alert, message, loaderBg });
+
+    }else{
+
+      await newUser.save();
+      const alertType = "success";
+      const alert = "true";
+      const loaderBg = '#f96868';
+      const message = "Successfully created your Account";
+      res.status(200).send({ alertType, alert, message, loaderBg });
+    }
 
   } catch (err) {
     console.log(err);

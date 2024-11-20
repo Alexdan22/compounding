@@ -370,7 +370,7 @@ var job = schedule.scheduleJob('0 1 * * *', async(scheduledTime) => {
       console.error(err);
     }
 });
-var job = schedule.scheduleJob('0 * * * *', async(scheduledTime) => {
+var job = schedule.scheduleJob('0 * * * * *', async(scheduledTime) => {
 console.log(minutes, hour);
 console.log(scheduledTime);
 });

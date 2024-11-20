@@ -15,6 +15,7 @@ const sdk = require('api')('@decentro/v1.0#pwx2s1ddlp6q9m73');
 const { DateTime } = require('luxon');
 const app = express();
 const QRCode = require('qrcode');
+const { log } = require('console');
 
 app.set('view engine', 'ejs');
 
@@ -368,6 +369,10 @@ var job = schedule.scheduleJob('0 1 * * *', async(scheduledTime) => {
     } catch (err) {
       console.error(err);
     }
+});
+var job = schedule.scheduleJob('0 * * * *', async(scheduledTime) => {
+console.log(minutes, hour);
+console.log(scheduledTime);
 });
 
 

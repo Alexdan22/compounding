@@ -1156,13 +1156,6 @@ app.post('/transferToWallet', async (req, res) =>{
 
       }else{
         
-      if(Number(req.body.amount) < 200){
-        const alertType = "warning";
-          const alert = "true";
-          const loaderBg = '#57c7d4';
-          const message = "Entered amount is low, transfer failed";
-          res.status(200).send({ alertType, alert, message, loaderBg });
-      }else{
         if(foundUser.compound.interest < Number(req.body.amount)){
           const alertType = "warning";
           const alert = "true";
@@ -1216,7 +1209,6 @@ app.post('/transferToWallet', async (req, res) =>{
           res.status(200).send({ alertType, alert, message, loaderBg });
       
         }
-      }
       }
     }catch(err){
       console.log(err);

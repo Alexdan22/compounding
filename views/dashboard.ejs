@@ -391,6 +391,52 @@
 
                           
                         </div>
+                        <div class="card">
+                          <div class="card-body">
+                            <h4 class="card-title">Compounding Logs</h4>
+                            <div class="row grid-margin">
+                              <div class="col-12">
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-12">
+                                <div class="table-responsive">
+                                  <table id="order-listing" class="table">
+                                    <%    if(transaction.length != 0){  %>
+                                        
+                                    <thead>
+                                        <tr class="bg-primary text-white">
+                                          <th>Interest earned</th>
+                                          <th>From</th>
+                                          <th>Date</th>
+                                        </tr>
+                                      </thead>
+                                      
+                                    <tbody>
+                                        <%   transaction.slice().reverse().forEach(function(payment){  %>
+                                          <tr>
+                                            <td>
+                                            <label class="badge badge-success"><%=payment.interest%></label>
+                                            </td>
+                                            <td><%=payment.compound%></td>
+                                            <td><%=payment.time.date%>/<%=payment.time.month%>/<%=payment.time.year%></td>
+                                        </tr>
+                                      <%     });  %>
+                                      
+                                    </tbody>
+                                      <%    }else{  %>
+                                            <br><br>
+                                            <div class="">
+                                                <h6 class="mb-1 text-dark text-sm">No transactions found</h6>
+                                            </div>
+                                      <%    } %>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
                         <br><br><br>
                         <div class="text-center">
                           <a href="https://wa.me/+447418342113" target="_blank" class="btn btn-primary text-white texy-center btn-lg btn-block">Contact Us</a>

@@ -135,7 +135,7 @@
                               </thead>
                               
                             <tbody>
-                                <%   transaction.forEach(function(payment){  %>
+                                <%   transaction.slice().reverse().forEach(function(payment){  %>
                                 <%   if(payment.status == 'Pending'){  %>
                               <%       //Pending warning trnx  %>
                                     <tr>

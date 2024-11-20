@@ -71,6 +71,15 @@ const compoundSchema = new mongoose.Schema({
   days: Number,
   percentage: Number
 });
+const compoundLogSchema = new mongoose.Schema({
+  interest: Number,
+  compound: Number,
+  time:{
+    date: String,
+    month: String,
+    year: String
+  }
+});
 const bankDetailsSchema = new mongoose.Schema({
   name: String,
   accountNumber: String,
@@ -134,6 +143,8 @@ const userSchema = new mongoose.Schema({
   earnings: earningSchema,
 
   compound: compoundSchema,
+
+  compoundLog: [compoundLogSchema],
 
   bankDetails: bankDetailsSchema,
 
@@ -252,10 +263,9 @@ var job = schedule.scheduleJob('0 1 * * *', async(scheduledTime) => {
       foundUsers.forEach(async (user) => {
         if (user.status === 'Active') {
           if (user.compound.days === 1) {
-            // Handle to credit the compounding interest and reset the compound active
+            // Handle to credit the compounding interest and reset the compound active to Idle
 
             const todaysInterest = Math.floor((user.compound.active + user.compound.interest) * user.compound.percentage);
-            console.log(todaysInterest, user.compound.percentage)
             const lastDayInterest = Math.floor(todaysInterest +user.compound.interest);
             const updatedCompound = {
               active: 0,
@@ -305,10 +315,26 @@ var job = schedule.scheduleJob('0 1 * * *', async(scheduledTime) => {
 
               await User.updateOne({ email: user.email }, { $set: { transaction: transaction } });
 
+              const compoundLog = user.compoundLog;
+
+              const newcompoundLog = {
+                interest: todaysInterest,
+                compound: user.compound.active + user.compound.interest,
+                time: {
+                  date: date,
+                  month: month,
+                  year: year
+                }
+              };
+
+              compoundLog.push(newcompoundLog);
+
+
+              await User.updateOne({ email: user.email }, { $set: { compoundLog: compoundLog } });
+
           } else {
             // Handle for normal compounding
             const todaysInterest = Math.floor((user.compound.active + user.compound.interest) * user.compound.percentage);
-            console.log(todaysInterest, user.compound.percentage)
             const updatedCompound = {
               active: user.compound.active,
               total: user.compound.total,
@@ -318,11 +344,27 @@ var job = schedule.scheduleJob('0 1 * * *', async(scheduledTime) => {
             };
 
             await User.updateOne({ email: user.email }, { $set: { compound: updatedCompound } });
+
+            const compoundLog = user.compoundLog;
+
+              const newcompoundLog = {
+                interest: todaysInterest,
+                compound: user.compound.active + user.compound.interest,
+                time: {
+                  date: date,
+                  month: month,
+                  year: year
+                }
+              };
+
+              compoundLog.push(newcompoundLog);
+
+
+              await User.updateOne({ email: user.email }, { $set: { compoundLog: compoundLog } });
           }
         }
       });
 
-      res.redirect('/admin');
     } catch (err) {
       console.error(err);
     }
@@ -417,6 +459,7 @@ app.get("/dashboard", async (req, res) => {
       compound,
       loan: foundLoan,
       current: compound.active + compound.interest,
+      transaction: foundUser.compoundLog,
       status
     });
   } catch (err) {
